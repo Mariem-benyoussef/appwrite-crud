@@ -52,7 +52,7 @@ async function updateTask(id, data) {
 
 export async function GET(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const task = await fetchTask(id);
     return NextResponse.json({ task });
   } catch (error) {

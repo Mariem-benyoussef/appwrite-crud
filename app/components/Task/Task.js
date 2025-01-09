@@ -1,10 +1,12 @@
 "use client";
 import { deleteTask, fetchTasks } from "@/app/redux/slices/taskSlice";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function Task() {
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
   const dispatch = useDispatch();
 
   // Get tasks and status from Redux store
@@ -15,16 +17,39 @@ export default function Task() {
     dispatch(fetchTasks());
   }, [dispatch]);
 
-  const handleDelete = (id) => {
-    dispatch(deleteTask(id))
-      .unwrap()
-      .then(() => {
-        // Mettre à jour les tâches localement sans recharger la page
-        dispatch(fetchTasks()); // Relance la récupération des tâches
-      })
-      .catch((err) => {
-        console.error("Erreur lors de la suppression :", err);
-      });
+  // const handleDelete = (id) => {
+  //   dispatch(deleteTask(id))
+  //     .unwrap()
+  //     .then(() => {
+  //       // Mettre à jour les tâches localement sans recharger la page
+  //       dispatch(fetchTasks()); // Relance la récupération des tâches
+  //     })
+  //     .catch((err) => {
+  //       console.error("Erreur lors de la suppression :", err);
+  //     });
+  // };
+
+  const handleDeleteClick = (taskId) => {
+    setTaskToDelete(taskId); // Enregistrez l'ID de la tâche à supprimer
+    setShowConfirmPopup(true); // Affichez la modale de confirmation
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      // Appelez le thunk pour supprimer la tâche
+      await dispatch(deleteTask(id)).unwrap();
+
+      // Mettre à jour les tâches localement sans recharger la page
+      dispatch(fetchTasks()); // Relance la récupération des tâches
+
+      setShowConfirmPopup(false); // Masquez la modale
+    } catch (error) {
+      console.error("Erreur lors de la suppression", error);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowConfirmPopup(false); // Masquer la modale sans supprimer
   };
 
   return (
@@ -50,17 +75,46 @@ export default function Task() {
                 </Link>
 
                 <button
-                  onClick={() => handleDelete(task.$id)}
+                  onClick={() => handleDeleteClick(task.$id)}
                   className="bg-red-500 text-white px-4 py-2 rounded-md uppercase text-sm font-bold tracking-widest"
                 >
                   Supprimer
                 </button>
+                {showConfirmPopup && (
+                  <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-md shadow-lg">
+                      <p>Êtes-vous sûr de vouloir supprimer cette tâche ?</p>
+                      <div className="mt-4 flex justify-between">
+                        <button
+                          onClick={() => handleDelete(taskToDelete)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-md"
+                        >
+                          Confirmer
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p>Aucune tâche trouvée.</p>
+        <div>
+          <p>Aucune tâche trouvée.</p>
+          <Link
+            className="bg-slate-100 grid place-items-center py-2 px-4 rounded-full font-bold shadow-md mt-4"
+            href="/create"
+          >
+            <span className="text-2xl mr-2">+</span>{" "}
+          </Link>
+        </div>
       )}
     </div>
   );
