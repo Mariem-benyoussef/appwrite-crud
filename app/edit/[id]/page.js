@@ -2,12 +2,14 @@
 
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 export default function EditPage() {
   const { id } = useParams();
   const [formData, setFormData] = useState({ name: "", description: "" });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [error, setError] = useState(null);
+  const { isLoading, error } = useSelector((state) => state.tasks);
 
   const router = useRouter();
 
@@ -47,8 +49,8 @@ export default function EditPage() {
       return;
     }
 
-    setError(null);
-    setIsLoading(true);
+    // setError(null);
+    // setIsLoading(true);
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
@@ -67,14 +69,15 @@ export default function EditPage() {
     } catch (error) {
       console.log(error);
       setError("Something went wrong. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+    } 
+    // finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold my-8">Modifier tache</h2>
+      <h2 className="text-2xl font-bold my-8">Modifier tâche</h2>
 
       <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
         <input
@@ -100,7 +103,7 @@ export default function EditPage() {
           type="submit"
           disabled={isLoading}
         >
-          {isLoading ? "Ajouter..." : "Modifier tache"}
+          {isLoading ? "Ajouter..." : "Modifier tâche"}
         </button>
       </form>
       {error && <p className="text-red-500 mt-4">{error}</p>}

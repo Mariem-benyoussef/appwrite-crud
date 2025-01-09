@@ -65,7 +65,7 @@ export async function GET(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await deleteTask(id);
     return NextResponse.json({ message: "Task deleted" });
   } catch (error) {
