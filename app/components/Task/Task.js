@@ -106,13 +106,13 @@ export default function Task() {
           ))}
         </div>
       ) : (
-        <div>
+        <div className="flex flex-col items-center mt-4">
           <p>Aucune tâche trouvée.</p>
           <Link
-            className="bg-slate-100 grid place-items-center py-2 px-4 rounded-full font-bold shadow-md mt-4"
+            className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
             href="/create"
           >
-            <span className="text-2xl mr-2">+</span>{" "}
+            <span className="text-2xl mr-2">+</span>
           </Link>
         </div>
       )}

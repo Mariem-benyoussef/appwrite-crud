@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
     <Providers>
       <html lang="en">
         <body className={inter.className}>
-          <div 
+          <div
           // className="max-w-3xl mx-auto text-slate-800"
           >
             <header className="p-6 border-b flex items-center justify-between bg-blue-500 rounded-bl-lg rounded-br-lg">
@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
                 className="bg-slate-100 grid place-items-center py-2 px-4 rounded-full font-bold shadow-md"
                 href={"/create"}
               >
-                Ajouter une tache
+                Ajouter une tâche
               </Link>
             </header>
             <main className="p-4 text-lg">{children}</main>

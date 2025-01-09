@@ -75,7 +75,7 @@ export default function CreatePage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold my-8">Ajouter une tâche</h2>
+      <h2 className="text-2xl font-bold my-8 text-center">Ajouter une tâche</h2>
 
       <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
         <input
