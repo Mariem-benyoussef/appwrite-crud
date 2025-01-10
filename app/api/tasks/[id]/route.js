@@ -1,3 +1,7 @@
+// Managing specific tasks by id.
+// GET (fetch by id), DELETE, PUT.
+// (task-level operations).
+
 import client from "@/lib/appwrite_client";
 import { Databases } from "appwrite";
 import { NextResponse } from "next/server";
@@ -78,7 +82,7 @@ export async function DELETE(req, { params }) {
 
 export async function PUT(req, { params }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const task = await req.json();
     await updateTask(id, task);
     return NextResponse.json({ message: "Task updated" });

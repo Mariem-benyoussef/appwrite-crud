@@ -69,7 +69,7 @@ export default function EditPage() {
     } catch (error) {
       console.log(error);
       setError("Something went wrong. Please try again.");
-    } 
+    }
     // finally {
     //   setIsLoading(false);
     // }

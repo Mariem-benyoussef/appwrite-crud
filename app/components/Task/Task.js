@@ -3,10 +3,14 @@ import { deleteTask, fetchTasks } from "@/app/redux/slices/taskSlice";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function Task() {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+
+  // Permet d'envoyer des actions au store Redux
   const dispatch = useDispatch();
 
   // Get tasks and status from Redux store
@@ -71,14 +75,17 @@ export default function Task() {
                   className="bg-slate-200 px-4 py-2 rounded-md uppercase text-sm font-bold tracking-widest"
                   href={`/edit/${task.$id}`}
                 >
-                  Modifier
+                  <EditIcon className="text-gray-700" />
+
+                  {/* Modifier */}
                 </Link>
 
                 <button
                   onClick={() => handleDeleteClick(task.$id)}
                   className="bg-red-500 text-white px-4 py-2 rounded-md uppercase text-sm font-bold tracking-widest"
                 >
-                  Supprimer
+                  <DeleteIcon className="mr-2" />
+                  {/* Supprimer */}
                 </button>
                 {showConfirmPopup && (
                   <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">

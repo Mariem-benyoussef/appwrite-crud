@@ -1,3 +1,7 @@
+// Managing task lists.
+// POST (create task), GET (fetch all tasks).
+// (list-level operations).
+
 import client from "@/lib/appwrite_client";
 import { Databases, ID, Query } from "appwrite";
 import { NextResponse } from "next/server";
