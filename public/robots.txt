@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://appwrite-crud-j9dg0c5jd-mariem-ben-youssefs-projects.vercel.app
+
+# Sitemaps
+Sitemap: https://appwrite-crud-j9dg0c5jd-mariem-ben-youssefs-projects.vercel.app/sitemap.xml
+Sitemap: https://appwrite-crud-j9dg0c5jd-mariem-ben-youssefs-projects.vercel.app/server-sitemap.xml
