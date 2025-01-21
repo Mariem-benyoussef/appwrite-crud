@@ -86,7 +86,7 @@ const tasksSlice = createSlice({
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = action.payload; // Stocker les tâches récupérées
-        console.log("Tâches récupérées:", action.payload);
+        // console.log("Tâches récupérées:", action.payload);
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.status = "failed";

@@ -2,11 +2,11 @@
 // GET (fetch by id), DELETE, PUT.
 // (task-level operations).
 
-import client from "@/lib/appwrite_client";
+import { getAppwriteClient } from '@/lib/appwrite_client';
 import { Databases } from "appwrite";
 import { NextResponse } from "next/server";
 
-const database = new Databases(client);
+const database = new Databases(getAppwriteClient());
 
 // Fetch a specific task
 async function fetchTask(id) {

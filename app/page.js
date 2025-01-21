@@ -1,5 +1,7 @@
 "use client";
-import Task from "./components/Task/Task";
+
+import Task from "./tasks/page";
+
 
 export default function App() {
   return <Task />;

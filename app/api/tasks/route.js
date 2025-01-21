@@ -2,11 +2,11 @@
 // POST (create task), GET (fetch all tasks).
 // (list-level operations).
 
-import client from "@/lib/appwrite_client";
+import { getAppwriteClient } from "@/lib/appwrite_client";
 import { Databases, ID, Query } from "appwrite";
 import { NextResponse } from "next/server";
 
-const database = new Databases(client);
+const database = new Databases(getAppwriteClient());
 
 // Create Task
 async function createTask(data) {
