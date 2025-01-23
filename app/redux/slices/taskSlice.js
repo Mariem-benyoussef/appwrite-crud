@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Async thunk pour récupérer toutes les tâches
 export const fetchTasks = createAsyncThunk("fetchTasks", async () => {
+  // console.log("Frontend");
   try {
     const response = await fetch(`/api/tasks`);
     if (!response.ok) {
@@ -55,6 +56,7 @@ export const updateTask = createAsyncThunk(
 
 // Async thunk pour supprimer une tâche
 export const deleteTask = createAsyncThunk("deleteTask", async (id) => {
+  console.log("Suppression de la tâche Frontend", id);
   try {
     const response = await fetch(`/api/tasks/${id}`, {
       method: "DELETE",

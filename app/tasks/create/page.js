@@ -9,7 +9,12 @@ import { addTask } from "@/app/redux/slices/taskSlice";
 export default function CreatePage() {
   const dispatch = useDispatch();
 
-  const [formData, setFormData] = useState({ name: "", description: "" });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "",
+    priority: "",
+  });
   const router = useRouter();
 
   // Récupérez l'état depuis Redux
@@ -22,43 +27,15 @@ export default function CreatePage() {
     }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!formData.name || !formData.description) {
-  //     setError("Veuillez remplir tous les champs");
-  //     return;
-  //   }
-
-  //   setError(null);
-  //   setIsLoading(true);
-
-  //   try {
-  //     const response = await fetch(`/api/tasks/`, {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-type": "application/json",
-  //       },
-  //       body: JSON.stringify(formData),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Failed to create description");
-  //     }
-
-  //     router.push("/");
-  //   } catch (error) {
-  //     console.log(error);
-  //     setError("Something went wrong. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.description) {
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.status ||
+      !formData.priority
+    ) {
       return; // Gestion des erreurs côté Redux
     }
 
@@ -80,9 +57,9 @@ export default function CreatePage() {
       <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
         <input
           type="text"
-          name="name"
-          placeholder="Nom"
-          value={formData.name}
+          name="title"
+          placeholder="Titre de la tâche"
+          value={formData.title}
           className="py-1 px-4 border rounded-md"
           onChange={handleInputChange}
         />
@@ -95,6 +72,24 @@ export default function CreatePage() {
           className="py-1 px-4 border rounded-md resize-none"
           onChange={handleInputChange}
         ></textarea>
+
+        <input
+          type="text"
+          name="status"
+          placeholder="Statut de la tâche"
+          value={formData.status}
+          className="py-1 px-4 border rounded-md"
+          onChange={handleInputChange}
+        />
+
+        <input
+          type="text"
+          name="priority"
+          placeholder="Priorité de la tâche"
+          value={formData.priority}
+          className="py-1 px-4 border rounded-md"
+          onChange={handleInputChange}
+        />
 
         <button
           className="bg-black text-white mt-5 px-4 py-1 rounded-md cursor-pointer"

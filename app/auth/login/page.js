@@ -1,10 +1,8 @@
 "use client";
 import {
-  login,
-  selectError,
-  selectIsAuthenticated,
+  login
 } from "@/app/redux/slices/authSlice";
-import { store } from "@/app/redux/store";
+import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,25 +18,25 @@ const LoginPage = () => {
   const router = useRouter();
   const [validationErrors, setValidationErrors] = useState({});
 
-  const validateForm = () => {
-    const errors = {};
+  // const validateForm = () => {
+  //   const errors = {};
 
-    // Email validation
-    if (!formData.email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
+  //   // Email validation
+  //   if (!formData.email) {
+  //     errors.email = "Email is required";
+  //   } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+  //     errors.email = "Please enter a valid email address";
+  //   }
 
-    // Password validation
-    if (!formData.password) {
-      errors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
-    }
+  //   // Password validation
+  //   if (!formData.password) {
+  //     errors.password = "Password is required";
+  //   } else if (formData.password.length < 6) {
+  //     errors.password = "Password must be at least 6 characters";
+  //   }
 
-    return errors;
-  };
+  //   return errors;
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,7 +44,6 @@ const LoginPage = () => {
       ...prev,
       [name]: value,
     }));
-    // Clear validation error when user starts typing
     if (validationErrors[name]) {
       setValidationErrors((prev) => ({
         ...prev,
@@ -55,37 +52,42 @@ const LoginPage = () => {
     }
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    const errors = validateForm();
+    const errors = {};
+    if (!formData.email?.trim()) {
+      errors.email = "Email is required";
+    }
+    if (!formData.password) {
+      errors.password = "Password is required";
+    }
+
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
     }
-  
+
     try {
-      // Correct the way we pass email and password to match the thunk
-      await dispatch(
-        login(formData.email.trim(), formData.password)
+      const resultAction = await dispatch(
+        login({
+          email: formData.email.trim(),
+          password: formData.password,
+        })
       );
-  
-      // Get the current state after the dispatch
-      const error = selectError(store.getState());
-      const isAuthenticated = selectIsAuthenticated(store.getState());
-  
-      if (isAuthenticated) {
-        router.push("/");
-        console.log("Login successful");
-      } else {
-        console.log("Login failed");
-        console.error("Login failed", error);
-      }
+
+      const data = unwrapResult(resultAction);
+      console.log("Login successful:", data);
+
+      router.push("/");
     } catch (error) {
-      console.error("Error during login", error);
+      console.error("Login failed:", error);
+
+      setValidationErrors({
+        general: error?.message || "Login failed. Please try again.",
+      });
     }
   };
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
 

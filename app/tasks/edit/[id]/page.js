@@ -6,7 +6,12 @@ import { useSelector } from "react-redux";
 
 export default function EditPage() {
   const { id } = useParams();
-  const [formData, setFormData] = useState({ name: "", description: "" });
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    status: "",
+    priority: "",
+  });
   // const [isLoading, setIsLoading] = useState(false);
   // const [error, setError] = useState(null);
   const { isLoading, error } = useSelector((state) => state.tasks);
@@ -21,19 +26,21 @@ export default function EditPage() {
           throw new Error("Failed to fetch task");
         }
 
-        const data = await response.json();
-        console.log(data);
+        const { task } = await response.json();
+        console.log("task", task);
         setFormData({
-          name: data.task.name,
-          description: data.task.description,
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          priority: task.priority,
         });
       } catch (error) {
-        setError("Échec du chargement de la tâche.");
+        console.error(error);
       }
     };
+    // fetchData();
+  }, [id]);
 
-    fetchData();
-  }, []);
   const handleInputChange = (e) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -44,8 +51,13 @@ export default function EditPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.description) {
-      setError("Veuillez remplir tous les champs");
+    if (
+      !formData.title ||
+      !formData.description ||
+      !formData.status ||
+      !formData.priority
+    ) {
+      // setError("Veuillez remplir tous les champs");
       return;
     }
 
@@ -68,7 +80,7 @@ export default function EditPage() {
       router.push("/");
     } catch (error) {
       console.log(error);
-      setError("Something went wrong. Please try again.");
+      // setError("Something went wrong. Please try again.");
     }
     // finally {
     //   setIsLoading(false);
@@ -82,9 +94,9 @@ export default function EditPage() {
       <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
         <input
           type="text"
-          name="name"
+          name="title"
           placeholder="Nom"
-          value={formData.name}
+          value={formData.title}
           className="py-1 px-4 border rounded-md"
           onChange={handleInputChange}
         />
@@ -97,6 +109,24 @@ export default function EditPage() {
           className="py-1 px-4 border rounded-md resize-none"
           onChange={handleInputChange}
         ></textarea>
+
+        <input
+          type="text"
+          name="status"
+          placeholder="Statut"
+          value={formData.status}
+          className="py-1 px-4 border rounded-md"
+          onChange={handleInputChange}
+        />
+
+        <input
+          type="text"
+          name="priority"
+          placeholder="Priorité"
+          value={formData.priority}
+          className="py-1 px-4 border rounded-md"
+          onChange={handleInputChange}
+        />
 
         <button
           className="bg-black text-white mt-5 px-4 py-1 rounded-md cursor-pointer"

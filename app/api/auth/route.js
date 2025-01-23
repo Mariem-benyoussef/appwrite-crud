@@ -1,25 +1,26 @@
-import { getAppwriteClient, getAccount } from "@/lib/appwrite_client";
-import { NextResponse } from "next/server";
+// import { getAppwriteClient, getAccount } from "@/lib/appwrite_client";
+// import { NextResponse } from "next/server";
 
 // export async function POST(request) {
-//   const client = getAppwriteClient();
-//   const account = getAccount(client, email, password);
-
 //   try {
 //     const body = await request.json();
-//     const email = body.email.email;
-//     const password = body.email.password;
 
-//     // console.log("bodyyyyyyyyyyyyyy", body);
-//     // console.log("emaillll", email);
-//     // console.log("passworddddddddddd", password);
-
+//     const email = body.email;
+//     const password = body.password;
+//     console.log("email", email);
+//     console.log("password", password);
 //     if (!email || !password) {
-//       throw new Error("Email and password are required");
+//       return NextResponse.json(
+//         { success: false, error: "Email and password are required" },
+//         { status: 400 }
+//       );
 //     }
 
-//     const session = await account.createSession(email, password);
-//     // Validate the returned session
+//     const client = getAppwriteClient();
+//     const account = getAccount(client, email, password);
+
+//     const session = await account;
+
 //     if (!session) {
 //       throw new Error(
 //         "Failed to create session: Invalid response from Appwrite"
@@ -31,7 +32,6 @@ import { NextResponse } from "next/server";
 //       session,
 //     });
 //   } catch (error) {
-//     // Handle Appwrite specific errors
 //     const errorMessage =
 //       error.type === "user_invalid_credentials"
 //         ? "Invalid email or password"
@@ -46,64 +46,50 @@ import { NextResponse } from "next/server";
 //     );
 //   }
 // }
+// export async function DELETE() {
+//   const client = getAppwriteClient();
+//   const account = getAccount(client, email, password);
+
+//   try {
+//     await account.deleteSession("current");
+//     return NextResponse.json({ success: true });
+//   } catch (error) {
+//     return NextResponse.json(
+//       { success: false, error: error.message },
+//       { status: 400 }
+//     );
+//   }
+// }
+
+import { NextResponse } from 'next/server';
+
+const API_URL = 'http://127.0.0.1:8000';
 
 export async function POST(request) {
-   try {
-    
-  const body = await request.json();
+  try {
+    const { email, password } = await request.json();
 
-  const email = body.email;
-  const password = body.password;
-  console.log("email", email);
-  console.log("password", password);
-  if (!email || !password) {
-    return NextResponse.json(
-      { success: false, error: "Email and password are required" },
-      { status: 400 }
-    );
-  }
-
-    const client = getAppwriteClient();
-    const account = getAccount(client, email, password);
-
-    const session = await account;
-
-    if (!session) {
-      throw new Error(
-        "Failed to create session: Invalid response from Appwrite"
-      );
+    if (!email || !password) {
+      return NextResponse.json({ success: false, error: 'Email and password are required' }, { status: 400 });
     }
 
-    return NextResponse.json({
-      success: true,
-      session,
-    });
-  } catch (error) {
-    const errorMessage =
-      error.type === "user_invalid_credentials"
-        ? "Invalid email or password"
-        : error.message;
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: errorMessage,
+    // Send login request to Laravel API
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      { status: error.code || 400 }
-    );
-  }
-}
-export async function DELETE() {
-  const client = getAppwriteClient();
-  const account = getAccount(client, email, password);
+      body: JSON.stringify({ email, password }),
+    });
 
-  try {
-    await account.deleteSession("current");
-    return NextResponse.json({ success: true });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json({ success: false, error: errorData.message || 'Login failed' }, { status: response.status });
+    }
+
+    const data = await response.json();
+    return NextResponse.json({ success: true, user: data.user, token: data.token });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

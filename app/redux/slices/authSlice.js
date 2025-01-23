@@ -1,114 +1,56 @@
-import { createSlice } from "@reduxjs/toolkit";
+// redux/slices/authSlice.js
 
-const initialState = {
-  user: null,
-  session: null,
-  isLoading: false,
-  error: null,
-};
+import { fetchAPI } from "@/lib/fetch";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-const authSlice = createSlice({
-  name: "auth",
-  initialState,
-  reducers: {
-    loginStart: (state) => {
-      state.isLoading = true;
-      state.error = null;
-    },
-    loginSuccess: (state, action) => {
-      state.isLoading = false;
-      state.session = action.payload.session;
-      state.user = action.payload.user;
-      state.error = null;
-    },
-    loginFailure: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-    logoutStart: (state) => {
-      state.isLoading = true;
-      state.error = null;
-    },
-    logoutSuccess: (state) => {
-      state.isLoading = false;
-      state.user = null;
-      state.session = null;
-      state.error = null;
-    },
-    logoutFailure: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-    setUser: (state, action) => {
-      state.user = action.payload;
-    },
-  },
-});
-
-// Export actions
-export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  logoutStart,
-  logoutSuccess,
-  logoutFailure,
-  setUser,
-} = authSlice.actions;
-
-// Create thunks for async operations
-export const login = (email, password) => async (dispatch) => {
-  dispatch(loginStart());
-  try {
-    const response = await fetch("/api/auth", {
+export const login = createAsyncThunk(
+  "auth/login",
+  async ({ email, password }) => {
+    const response = await fetchAPI("/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await response.json();
+    return response;
+  }
+);
 
-    if (!data.success) {
-      throw new Error(data.error);
-    }
-
-    dispatch(
-      loginSuccess({
-        session: data.session,
-        user: data.user,
+const authSlice = createSlice({
+  name: "auth",
+  initialState: {
+    user: null,
+    isAuthenticated: false,
+    loading: false,
+    error: null,
+  },
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(login.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
-    );
-  } catch (error) {
-    dispatch(loginFailure(error.message));
-  }
-};
-
-export const logout = () => async (dispatch) => {
-  dispatch(logoutStart());
-  try {
-    const response = await fetch("/api/auth", {
-      method: "DELETE",
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      throw new Error(data.error);
-    }
-
-    dispatch(logoutSuccess());
-  } catch (error) {
-    dispatch(logoutFailure(error.message));
-  }
-};
+      .addCase(login.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
+  },
+});
 
 // Selectors
+export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
-export const selectSession = (state) => state.auth.session;
-export const selectIsLoading = (state) => state.auth.isLoading;
-export const selectError = (state) => state.auth.error;
-export const selectIsAuthenticated = (state) => !!state.auth.session;
+
+export const { logout } = authSlice.actions;
 
 export default authSlice.reducer;

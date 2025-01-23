@@ -21,18 +21,6 @@ export default function Task() {
     dispatch(fetchTasks());
   }, [dispatch]);
 
-  // const handleDelete = (id) => {
-  //   dispatch(deleteTask(id))
-  //     .unwrap()
-  //     .then(() => {
-  //       // Mettre à jour les tâches localement sans recharger la page
-  //       dispatch(fetchTasks()); // Relance la récupération des tâches
-  //     })
-  //     .catch((err) => {
-  //       console.error("Erreur lors de la suppression :", err);
-  //     });
-  // };
-
   const handleDeleteClick = (taskId) => {
     setTaskToDelete(taskId); // Enregistrez l'ID de la tâche à supprimer
     setShowConfirmPopup(true); // Affichez la modale de confirmation
@@ -40,8 +28,7 @@ export default function Task() {
 
   const handleDelete = async (id) => {
     try {
-      // Appelez le thunk pour supprimer la tâche
-      await dispatch(deleteTask(id)).unwrap();
+      await dispatch(deleteTask(id));
 
       // Mettre à jour les tâches localement sans recharger la page
       dispatch(fetchTasks()); // Relance la récupération des tâches
@@ -67,13 +54,12 @@ export default function Task() {
           {tasks.map((task, index) => (
             // console.log("task", task),
             <div key={index} className="p-4 my-2 rounded-md border-b leading-8">
-              <div className="font-bold">{task.name}</div>
+              <div className="font-bold">{task.title}</div>
               <div>{task.description}</div>
-
               <div className="flex gap-4 mt-4 justify-end">
                 <Link
                   className="bg-slate-200 px-4 py-2 rounded-md uppercase text-sm font-bold tracking-widest"
-                  href={`/edit/${task.$id}`}
+                  href={`/tasks/edit/${task.id}`}
                 >
                   <EditIcon className="text-gray-700" />
 
@@ -81,7 +67,7 @@ export default function Task() {
                 </Link>
 
                 <button
-                  onClick={() => handleDeleteClick(task.$id)}
+                  onClick={() => handleDeleteClick(task.id)}
                   className="bg-red-500 text-white px-4 py-2 rounded-md uppercase text-sm font-bold tracking-widest"
                 >
                   <DeleteIcon className="mr-2" />
@@ -117,7 +103,7 @@ export default function Task() {
           <p>Aucune tâche trouvée.</p>
           <Link
             className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center mt-4"
-            href="/create"
+            href="/tasks/create"
           >
             <span className="text-2xl mr-2">+</span>
           </Link>
