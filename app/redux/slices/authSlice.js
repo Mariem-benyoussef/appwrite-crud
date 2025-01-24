@@ -27,6 +27,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
+      localStorage.removeItem("token");
     },
   },
   extraReducers: (builder) => {
@@ -39,6 +40,9 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
+        if (action.payload.token) {
+          localStorage.setItem("token", action.payload.token);
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -50,6 +54,10 @@ const authSlice = createSlice({
 // Selectors
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
+
+export const getToken = (state) => {
+  return state.auth.token || localStorage.getItem("token");
+};
 
 export const { logout } = authSlice.actions;
 

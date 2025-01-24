@@ -27,7 +27,7 @@ export default function EditPage() {
         }
 
         const { task } = await response.json();
-        console.log("task", task);
+        // console.log("task", task);
         setFormData({
           title: task.title,
           description: task.description,
@@ -79,7 +79,7 @@ export default function EditPage() {
 
       router.push("/");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       // setError("Something went wrong. Please try again.");
     }
     // finally {

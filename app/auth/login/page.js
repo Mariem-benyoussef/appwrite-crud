@@ -1,10 +1,8 @@
 "use client";
-import {
-  login
-} from "@/app/redux/slices/authSlice";
+import { login } from "@/app/redux/slices/authSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const LoginPage = () => {
@@ -17,26 +15,6 @@ const LoginPage = () => {
   });
   const router = useRouter();
   const [validationErrors, setValidationErrors] = useState({});
-
-  // const validateForm = () => {
-  //   const errors = {};
-
-  //   // Email validation
-  //   if (!formData.email) {
-  //     errors.email = "Email is required";
-  //   } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-  //     errors.email = "Please enter a valid email address";
-  //   }
-
-  //   // Password validation
-  //   if (!formData.password) {
-  //     errors.password = "Password is required";
-  //   } else if (formData.password.length < 6) {
-  //     errors.password = "Password must be at least 6 characters";
-  //   }
-
-  //   return errors;
-  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,10 +52,8 @@ const LoginPage = () => {
           password: formData.password,
         })
       );
-
       const data = unwrapResult(resultAction);
-      console.log("Login successful:", data);
-
+      // console.log("resultAction", data);
       router.push("/");
     } catch (error) {
       console.error("Login failed:", error);
@@ -87,35 +63,6 @@ const LoginPage = () => {
       });
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   const errors = validateForm();
-  //   if (Object.keys(errors).length > 0) {
-  //     setValidationErrors(errors);
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await dispatch(
-  //       login({
-  //         email: formData.email.trim(),
-  //         password: formData.password,
-  //       })
-  //     );
-  //     console.log("response", response);
-  //     if (response.payload?.success) {
-  //       router.push("/");
-  //       console.log("Login successful");
-  //     } else {
-  //       console.log("Login failed");
-  //       console.error("Login failed", response.error);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during login", error);
-  //   }
-  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
