@@ -12,6 +12,8 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
+    // Send login request to Laravel API
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: {
@@ -35,7 +37,6 @@ export async function POST(request) {
       token: data.token,
     });
   } catch (error) {
-    console.error("Server error:", error.message);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

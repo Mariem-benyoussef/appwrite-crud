@@ -2,7 +2,7 @@
 import { login } from "@/app/redux/slices/authSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const LoginPage = () => {
@@ -52,8 +52,10 @@ const LoginPage = () => {
           password: formData.password,
         })
       );
+
       const data = unwrapResult(resultAction);
-      // console.log("resultAction", data);
+      // console.log("Login successfulllllllll:", data);
+
       router.push("/");
     } catch (error) {
       console.error("Login failed:", error);

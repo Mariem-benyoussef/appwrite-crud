@@ -5,11 +5,15 @@ import { fetchAPI } from "@/lib/fetch";
 import { NextResponse } from "next/server";
 
 export async function fetchTask(id) {
-  return fetchAPI(`/api/tasks/${id}`, { method: "GET" });
+  return fetchAPI(`/api/tasks/${id}`, {
+    method: "GET",
+  });
 }
 
 async function deleteTask(id) {
-  return fetchAPI(`/api/tasks/${id}`, { method: "DELETE" });
+  return fetchAPI(`/api/tasks/${id}`, {
+    method: "DELETE",
+  });
 }
 async function updateTask(id, data) {
   return fetchAPI(`/api/tasks/${id}`, {

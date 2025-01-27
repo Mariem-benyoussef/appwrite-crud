@@ -1,43 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getToken } from "./authSlice";
 
-// Async thunk for fetching tasks
+// Async thunk pour récupérer toutes les tâches
 export const fetchTasks = createAsyncThunk(
   "fetchTasks",
-  async (_, { getState }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      const state = getState();
-      // console.log(state);
-      const token = getToken(state);
-      console.log("tokennnnnnnn", token);
-      const response = await fetch(`/api/tasks`, {
+      const token = getState().auth.token;
+
+      if (!token) {
+        throw new Error("No token found, please log in again.");
+      }
+      const response = await fetch("/api/tasks", {
         method: "GET",
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
         },
       });
+
       if (!response.ok) {
-        throw new Error(`Error fetching tasks: ${response.statusText}`);
+        throw new Error("Failed to fetch tasks");
       }
-      const data = await response.json();
-      return data;
+
+      return await response.json();
     } catch (error) {
-      throw new Error(error.message);
+      return rejectWithValue(error.message);
     }
   }
 );
 
-// Async thunk for adding a task
+// Async thunk pour ajouter une nouvelle tâche
 export const addTask = createAsyncThunk("addTask", async (task) => {
   try {
-    const token = getToken(); // Get the token
     const response = await fetch(`/api/tasks`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "", // Include token if available
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(task),
     });
@@ -51,17 +51,17 @@ export const addTask = createAsyncThunk("addTask", async (task) => {
   }
 });
 
-// Async thunk for updating a task
+// Async thunk pour mettre à jour une tâche
 export const updateTask = createAsyncThunk(
   "updateTask",
   async ({ id, updates }) => {
     try {
-      const token = getToken(); // Get the token
       const response = await fetch(`/api/tasks/${id}`, {
         method: "PUT",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "", // Include token if available
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updates),
       });
@@ -76,20 +76,21 @@ export const updateTask = createAsyncThunk(
   }
 );
 
-// Async thunk for deleting a task
+// Async thunk pour supprimer une tâche
 export const deleteTask = createAsyncThunk("deleteTask", async (id) => {
+  console.log("Suppression de la tâche Frontend", id);
   try {
-    const token = getToken(); // Get the token
     const response = await fetch(`/api/tasks/${id}`, {
       method: "DELETE",
+      credentials: "include",
       headers: {
-        Authorization: token ? `Bearer ${token}` : "", // Include token if available
+        Authorization: `Bearer ${token}`,
       },
     });
     if (!response.ok) {
       throw new Error(`Error deleting task: ${response.statusText}`);
     }
-    return id; // Return the ID of the deleted task
+    return id; // Retourne simplement l'ID de la tâche supprimée
   } catch (error) {
     throw new Error(error.message);
   }
@@ -99,11 +100,11 @@ export const deleteTask = createAsyncThunk("deleteTask", async (id) => {
 const tasksSlice = createSlice({
   name: "tasks",
   initialState: {
-    items: [], // Liste des tâches
-    status: "idle", // Pour suivre l'état de la récupération, ajout, mise à jour, ou suppression
-    error: null, // Stocke les messages d'erreur
+    items: [],
+    status: "idle",
+    error: null,
   },
-  reducers: {}, // Pas de reducers supplémentaires pour l'instant
+  reducers: {},
   extraReducers: (builder) => {
     builder
       // Récupération des tâches
@@ -112,16 +113,27 @@ const tasksSlice = createSlice({
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items = action.payload; // Stocker les tâches récupérées
+        state.items = action.payload;
         // console.log("Tâches récupérées:", action.payload);
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message;
-        console.error(
-          "Erreur de récupération des tâches:",
-          action.error.message
-        );
+        if (action.error.message) {
+          state.error = action.error.message;
+          console.error(
+            "Erreur de récupération des tâches:",
+            action.error.message
+          );
+        } else if (action.payload && action.payload.error) {
+          state.error = action.payload.error;
+          console.error(
+            "Erreur de récupération des tâches:",
+            action.payload.error
+          );
+        } else {
+          state.error = "Erreur inconnue lors de la récupération des tâches.";
+          console.error("Erreur de récupération des tâches: Erreur inconnue.");
+        }
       })
 
       // Ajout d'une nouvelle tâche
@@ -131,7 +143,7 @@ const tasksSlice = createSlice({
       .addCase(addTask.fulfilled, (state, action) => {
         state.items.push(action.payload); // Ajouter la nouvelle tâche à la liste
         state.status = "succeeded";
-        // console.log("Tâche ajoutée:", action.payload);
+        console.log("Tâche ajoutée:", action.payload);
       })
       .addCase(addTask.rejected, (state, action) => {
         state.status = "failed";
@@ -150,7 +162,7 @@ const tasksSlice = createSlice({
         if (index !== -1) {
           state.items[index] = action.payload; // Remplacer la tâche mise à jour
         }
-        // console.log("Tâche mise à jour:", action.payload);
+        console.log("Tâche mise à jour:", action.payload);
       })
       .addCase(updateTask.rejected, (state, action) => {
         state.status = "failed";
@@ -164,7 +176,7 @@ const tasksSlice = createSlice({
       .addCase(deleteTask.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = state.items.filter((task) => task.id !== action.payload); // Retirer la tâche supprimée
-        // console.log("Tâche supprimée, ID:", action.payload);
+        console.log("Tâche supprimée, ID:", action.payload);
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.status = "failed";

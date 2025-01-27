@@ -4,34 +4,51 @@
 import { fetchAPI } from "@/lib/fetch";
 import { NextResponse } from "next/server";
 
-export async function fetchTasks() {
-  const token = localStorage.getItem("token");
-  // console.log("tokenbackkkkkk", token);
-  if (!token) {
-    throw new Error("Token is missing or expired");
+export async function fetchTasks(token) {
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/tasks", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching tasks: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in fetchTasks:", error);
+    throw error;
   }
-  return fetchAPI("/api/tasks", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
 }
 
-export async function GET() {
-  // console.log("Backend");
+// GET handler for fetching tasks
+export async function GET(req) {
   try {
-    const tasks = await fetchTasks();
+    // Extract token from the request headers
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+
+    if (!token) {
+      throw new Error("Authorization token not found");
+    }
+
+    const tasks = await fetchTasks(token); // Pass the token to fetch tasks
+    console.log("Fetched tasks:", tasks);
+
     return NextResponse.json(tasks);
   } catch (error) {
+    console.error("Error fetching tasks:", error);
+
     return NextResponse.json(
       { error: "Failed to fetch tasks", details: error.message },
       { status: 500 }
     );
   }
 }
-
 async function createTask(data) {
   try {
     const response = await fetchAPI("/api/tasks", {

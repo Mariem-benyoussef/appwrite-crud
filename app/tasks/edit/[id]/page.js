@@ -21,13 +21,16 @@ export default function EditPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/tasks/${id}`);
+        const response = await fetch(`/api/tasks/${id}`, {
+          method: "GET",
+          credentials: "include",
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch task");
         }
 
         const { task } = await response.json();
-        // console.log("task", task);
+        console.log("task", task);
         setFormData({
           title: task.title,
           description: task.description,
@@ -71,6 +74,7 @@ export default function EditPage() {
           "Content-type": "application/json",
         },
         body: JSON.stringify(formData),
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -79,7 +83,7 @@ export default function EditPage() {
 
       router.push("/");
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       // setError("Something went wrong. Please try again.");
     }
     // finally {

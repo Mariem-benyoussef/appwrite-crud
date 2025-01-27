@@ -3,12 +3,16 @@
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { logout, selectIsAuthenticated } from "../redux/slices/authSlice";
+import {
+  logout,
+  selectIsAuthenticated,
+  selectUser,
+} from "../redux/slices/authSlice";
 
 const Header = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const user = useSelector(selectUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const handleLogout = () => {
     dispatch(logout());
