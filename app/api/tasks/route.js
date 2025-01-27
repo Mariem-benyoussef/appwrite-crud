@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function fetchTasks() {
   const token = localStorage.getItem("token");
+  // console.log("tokenbackkkkkk", token);
   if (!token) {
     throw new Error("Token is missing or expired");
   }
@@ -19,7 +20,7 @@ export async function fetchTasks() {
 }
 
 export async function GET() {
-  // console.log("Backend")
+  // console.log("Backend");
   try {
     const tasks = await fetchTasks();
     return NextResponse.json(tasks);

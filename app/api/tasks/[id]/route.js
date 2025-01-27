@@ -4,7 +4,6 @@
 import { fetchAPI } from "@/lib/fetch";
 import { NextResponse } from "next/server";
 
-
 export async function fetchTask(id) {
   return fetchAPI(`/api/tasks/${id}`, { method: "GET" });
 }

@@ -18,25 +18,23 @@ export default function Task() {
   }, [dispatch]);
 
   const handleDeleteClick = (taskId) => {
-    setTaskToDelete(taskId); // Enregistrez l'ID de la tâche à supprimer
-    setShowConfirmPopup(true); // Affichez la modale de confirmation
+    setTaskToDelete(taskId); 
+    setShowConfirmPopup(true); 
   };
 
   const handleDelete = async (id) => {
     try {
       await dispatch(deleteTask(id));
+      dispatch(fetchTasks()); 
 
-      // Mettre à jour les tâches localement sans recharger la page
-      dispatch(fetchTasks()); // Relance la récupération des tâches
-
-      setShowConfirmPopup(false); // Masquez la modale
+      setShowConfirmPopup(false); 
     } catch (error) {
       console.error("Erreur lors de la suppression", error);
     }
   };
 
   const handleCancel = () => {
-    setShowConfirmPopup(false); // Masquer la modale sans supprimer
+    setShowConfirmPopup(false); 
   };
 
   return (
