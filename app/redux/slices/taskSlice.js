@@ -1,99 +1,150 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getToken } from "./authSlice";
+import { fetchAPI } from "@/lib/fetch";
+
+const getCsrfToken = () => {
+  console.log("document.cookie", document.cookie);
+
+  const matches = document.cookie.match(/(^| )XSRF-TOKEN=([^;]+)/);
+  console.log("matches", matches);
+  if (matches) {
+    console.log("matches2", matches[2]);
+
+    return matches[2]; // CSRF token value
+  }
+
+  return null; // No CSRF token available
+};
+
+function isAdmin(state) {
+  const user = selectUser(state);
+  return user?.role === "Admin";
+}
 
 // Async thunk for fetching tasks
+// Exemple de fonction fetch pour obtenir les tâches
 export const fetchTasks = createAsyncThunk(
   "fetchTasks",
   async (_, { getState }) => {
     try {
-      const state = getState();
-      // console.log(state);
-      const token = getToken(state);
-      console.log("tokennnnnnnn", token);
-      const response = await fetch(`/api/tasks`, {
+      const user = getState().auth.user;
+      // if (!user || !user.token) {
+      //   throw new Error("User is not authenticated");
+      // }
+      // console.log("getState()", getState());
+
+      // console.log("getState().auth", getState().auth);
+
+      // console.log("getState().auth.user", getState().auth.user);
+      console.log("useeeeeer", user);
+
+      // if (!csrfToken) {
+      //   throw new Error("CSRF token is missing");
+      // }
+      // console.log("csrfTokennnnnnnnn", getCsrfToken());
+      const csrfToken = getCsrfToken();
+      const response = await fetchAPI(`/api/tasks`, {
         method: "GET",
+        credentials: "include", // Inclure les cookies
         headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
+          "X-XSRF-TOKEN": csrfToken, // Ajouter le token CSRF dans les en-têtes
+          // Authorization: `Bearer ${getState().auth.user.token}`, // Si vous utilisez un JWT
         },
       });
       if (!response.ok) {
         throw new Error(`Error fetching tasks: ${response.statusText}`);
       }
-      const data = await response.json();
-      return data;
+      return await response.json(); // Retourner les tâches récupérées
     } catch (error) {
       throw new Error(error.message);
     }
   }
 );
 
-// Async thunk for adding a task
-export const addTask = createAsyncThunk("addTask", async (task) => {
-  try {
-    const token = getToken(); // Get the token
-    const response = await fetch(`/api/tasks`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "", // Include token if available
-      },
-      body: JSON.stringify(task),
-    });
-    if (!response.ok) {
-      throw new Error(`Error adding task: ${response.statusText}`);
+// Async thunk for adding a task (admin only)
+export const addTask = createAsyncThunk(
+  "addTask",
+  async (task, { getState }) => {
+    if (!isAdmin(getState())) {
+      throw new Error("Unauthorized: Admin privileges required");
     }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-});
 
-// Async thunk for updating a task
-export const updateTask = createAsyncThunk(
-  "updateTask",
-  async ({ id, updates }) => {
     try {
-      const token = getToken(); // Get the token
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
+      const response = await fetchAPI(`/api/tasks`, {
+        method: "POST",
+        credentials: "include", // Sends cookies (including CSRF token)
+        body: JSON.stringify(task),
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "", // Include token if available
         },
-        body: JSON.stringify(updates),
       });
       if (!response.ok) {
-        throw new Error(`Error updating task: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Error adding task: ${response.statusText}`
+        );
       }
-      const data = await response.json();
-      return data;
+      return await response.json(); // Return the created task data
     } catch (error) {
       throw new Error(error.message);
     }
   }
 );
 
-// Async thunk for deleting a task
-export const deleteTask = createAsyncThunk("deleteTask", async (id) => {
-  try {
-    const token = getToken(); // Get the token
-    const response = await fetch(`/api/tasks/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: token ? `Bearer ${token}` : "", // Include token if available
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Error deleting task: ${response.statusText}`);
+// Async thunk for updating a task (admin only)
+export const updateTask = createAsyncThunk(
+  "updateTask",
+  async ({ id, updates }, { getState }) => {
+    if (!isAdmin(getState())) {
+      throw new Error("Unauthorized: Admin privileges required");
     }
-    return id; // Return the ID of the deleted task
-  } catch (error) {
-    throw new Error(error.message);
+
+    try {
+      const response = await fetchAPI(`/api/tasks/${id}`, {
+        method: "PUT",
+        credentials: "include", // Sends cookies (including CSRF token)
+        body: JSON.stringify(updates),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Error updating task: ${response.statusText}`
+        );
+      }
+      return await response.json(); // Return the updated task data
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
-});
+);
+
+// Async thunk for deleting a task (admin only)
+export const deleteTask = createAsyncThunk(
+  "deleteTask",
+  async (id, { getState }) => {
+    if (!isAdmin(getState())) {
+      throw new Error("Unauthorized: Admin privileges required");
+    }
+
+    try {
+      const response = await fetchAPI(`/api/tasks/${id}`, {
+        method: "DELETE",
+        credentials: "include", // Sends cookies (including CSRF token)
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Error deleting task: ${response.statusText}`
+        );
+      }
+      return id; // Return the ID of the deleted task
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+);
 
 // Définition du slice
 const tasksSlice = createSlice({

@@ -70,6 +70,7 @@ export default function EditPage() {
         headers: {
           "Content-type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 

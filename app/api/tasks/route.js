@@ -5,16 +5,13 @@ import { fetchAPI } from "@/lib/fetch";
 import { NextResponse } from "next/server";
 
 export async function fetchTasks() {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    throw new Error("Token is missing or expired");
-  }
   return fetchAPI("/api/tasks", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
     },
+    credentials: "include",
   });
 }
 
@@ -35,6 +32,7 @@ async function createTask(data) {
   try {
     const response = await fetchAPI("/api/tasks", {
       method: "POST",
+      credentials: "include",
       body: JSON.stringify(data),
     });
     return response;

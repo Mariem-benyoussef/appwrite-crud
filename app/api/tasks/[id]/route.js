@@ -6,15 +6,22 @@ import { NextResponse } from "next/server";
 
 
 export async function fetchTask(id) {
-  return fetchAPI(`/api/tasks/${id}`, { method: "GET" });
+  return fetchAPI(`/api/tasks/${id}`, {
+    method: "GET",
+    credentials: "include",
+  });
 }
 
 async function deleteTask(id) {
-  return fetchAPI(`/api/tasks/${id}`, { method: "DELETE" });
+  return fetchAPI(`/api/tasks/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
 }
 async function updateTask(id, data) {
   return fetchAPI(`/api/tasks/${id}`, {
     method: "PUT",
+    credentials: "include",
     body: JSON.stringify(data),
   });
 }

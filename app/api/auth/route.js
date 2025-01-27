@@ -12,12 +12,15 @@ export async function POST(request) {
         { status: 400 }
       );
     }
+
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Accept: "application/json",
       },
       body: JSON.stringify({ email, password }),
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -32,7 +35,7 @@ export async function POST(request) {
     return NextResponse.json({
       success: true,
       user: data.user,
-      token: data.token,
+      // token: data.token,
     });
   } catch (error) {
     console.error("Server error:", error.message);
