@@ -11,9 +11,13 @@ export async function fetchTask(id) {
 }
 
 async function deleteTask(id) {
-  return fetchAPI(`/api/tasks/${id}`, {
+  const response = await fetchAPI(`/api/tasks/${id}`, {
     method: "DELETE",
   });
+  if (!response.ok) {
+    throw new Error(`Failed to delete task with ID ${id}`);
+  }
+  return response.json();
 }
 async function updateTask(id, data) {
   return fetchAPI(`/api/tasks/${id}`, {

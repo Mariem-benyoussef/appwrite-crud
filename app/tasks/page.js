@@ -1,11 +1,12 @@
 "use client";
+
 import { deleteTask, fetchTasks } from "@/app/redux/slices/taskSlice";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { setUserFromLocalStorage } from "../redux/slices/authSlice";
+import { logout, setUserFromLocalStorage } from "../redux/slices/authSlice";
 
 export default function Task() {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
@@ -18,40 +19,66 @@ export default function Task() {
   const { items: tasks, status, error } = useSelector((state) => state.tasks);
 
   useEffect(() => {
-    // Fetch tasks when the component mounts
-    dispatch(fetchTasks());
+    // Dispatch the action to set user and token from localStorage on initial load
     if (typeof window !== "undefined") {
       const storedToken = localStorage.getItem("token");
       if (storedToken) {
-        // Dispatch action to set user from localStorage if token exists
         const storedUser = JSON.parse(localStorage.getItem("user"));
         dispatch(
           setUserFromLocalStorage({ token: storedToken, user: storedUser })
         );
       }
     }
+    // Fetch tasks when the component mounts
+    dispatch(fetchTasks());
   }, [dispatch]);
 
   const handleDeleteClick = (taskId) => {
-    setTaskToDelete(taskId); // Enregistrez l'ID de la tâche à supprimer
-    setShowConfirmPopup(true); // Affichez la modale de confirmation
+    setTaskToDelete(taskId);
+    setShowConfirmPopup(true);
   };
-
   const handleDelete = async (id) => {
     try {
-      await dispatch(deleteTask(id));
+      const storedToken = localStorage.getItem("token");
+      if (storedToken) {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        dispatch(
+          setUserFromLocalStorage({ token: storedToken, user: storedUser })
+        );
+      }
+      const deleteResult = await dispatch(deleteTask(id));
+      console.log("Delete result:", deleteResult);
 
-      // Mettre à jour les tâches localement sans recharger la page
-      dispatch(fetchTasks()); // Relance la récupération des tâches
+      if (deleteTask.rejected.match(deleteResult)) {
+        // Log the full error message for better debugging
+        console.error("Error deleting task:", deleteResult.payload);
 
-      setShowConfirmPopup(false); // Masquez la modale
+        if (
+          deleteResult.payload &&
+          deleteResult.payload.includes("Unauthenticated")
+        ) {
+          console.error("User is unauthenticated. Redirecting to login...");
+          //dispatch(logout());
+        }
+        return;
+      }
+
+      console.log("Task deleted successfully, fetching tasks again...");
+      await dispatch(fetchTasks());
+      setShowConfirmPopup(false);
     } catch (error) {
-      console.error("Erreur lors de la suppression", error);
+      // Log the entire error object to check its structure
+      console.error("Error during delete:", error);
+
+      if (error.message.includes("Unauthenticated")) {
+        console.error("User is unauthenticated. Redirecting to login...");
+        dispatch(logout());
+      }
     }
   };
 
   const handleCancel = () => {
-    setShowConfirmPopup(false); // Masquer la modale sans supprimer
+    setShowConfirmPopup(false); // Close the confirmation popup without deleting
   };
 
   return (
@@ -63,7 +90,6 @@ export default function Task() {
       ) : tasks?.length > 0 ? (
         <div>
           {tasks.map((task, index) => (
-            // console.log("task", task),
             <div key={index} className="p-4 my-2 rounded-md border-b leading-8">
               <div className="font-bold">{task.title}</div>
               <div>{task.description}</div>
@@ -73,8 +99,6 @@ export default function Task() {
                   href={`/tasks/edit/${task.id}`}
                 >
                   <EditIcon className="text-gray-700" />
-
-                  {/* Modifier */}
                 </Link>
 
                 <button
@@ -82,8 +106,8 @@ export default function Task() {
                   className="bg-red-500 text-white px-4 py-2 rounded-md uppercase text-sm font-bold tracking-widest"
                 >
                   <DeleteIcon className="mr-2" />
-                  {/* Supprimer */}
                 </button>
+
                 {showConfirmPopup && (
                   <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-md shadow-lg">

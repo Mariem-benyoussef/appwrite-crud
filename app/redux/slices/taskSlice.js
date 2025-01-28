@@ -17,11 +17,6 @@ export const fetchTasks = createAsyncThunk(
           "Content-Type": "application/json",
         },
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch tasks");
-      }
-
       return await response.json();
     } catch (error) {
       return rejectWithValue(error.message);
@@ -32,9 +27,14 @@ export const fetchTasks = createAsyncThunk(
 // Async thunk pour ajouter une nouvelle tâche
 export const addTask = createAsyncThunk("addTask", async (task) => {
   try {
+    const token = getState().auth.token;
+
+    if (!token) {
+      throw new Error("No token found, please log in again.");
+    }
     const response = await fetch(`/api/tasks`, {
       method: "POST",
-      credentials: "include",
+      // credentials: "include",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -56,9 +56,14 @@ export const updateTask = createAsyncThunk(
   "updateTask",
   async ({ id, updates }) => {
     try {
+      const token = getState().auth.token;
+
+      if (!token) {
+        throw new Error("No token found, please log in again.");
+      }
       const response = await fetch(`/api/tasks/${id}`, {
         method: "PUT",
-        credentials: "include",
+        // credentials: "include",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -77,24 +82,39 @@ export const updateTask = createAsyncThunk(
 );
 
 // Async thunk pour supprimer une tâche
-export const deleteTask = createAsyncThunk("deleteTask", async (id) => {
-  console.log("Suppression de la tâche Frontend", id);
-  try {
-    const response = await fetch(`/api/tasks/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Error deleting task: ${response.statusText}`);
+export const deleteTask = createAsyncThunk(
+  "deleteTask",
+  async (id, { getState, rejectWithValue, dispatch }) => {
+    try {
+      const token = getState().auth.token;
+      console.log("Token from Redux state:", token);
+
+      if (!token) {
+        throw new Error("No token found, please log in again.");
+      }
+
+      const response = await fetch(`/api/tasks/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", errorText);
+        throw new Error(`Error deleting task: ${errorText}`);
+      }
+
+      return id;
+    } catch (error) {
+      console.error("Error in deleteTask thunk:", error);
+      return rejectWithValue(error.message);
     }
-    return id; // Retourne simplement l'ID de la tâche supprimée
-  } catch (error) {
-    throw new Error(error.message);
   }
-});
+);
 
 // Définition du slice
 const tasksSlice = createSlice({
@@ -114,26 +134,13 @@ const tasksSlice = createSlice({
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.items = action.payload;
+        state.error = null;
         // console.log("Tâches récupérées:", action.payload);
       })
       .addCase(fetchTasks.rejected, (state, action) => {
         state.status = "failed";
-        if (action.error.message) {
-          state.error = action.error.message;
-          console.error(
-            "Erreur de récupération des tâches:",
-            action.error.message
-          );
-        } else if (action.payload && action.payload.error) {
-          state.error = action.payload.error;
-          console.error(
-            "Erreur de récupération des tâches:",
-            action.payload.error
-          );
-        } else {
-          state.error = "Erreur inconnue lors de la récupération des tâches.";
-          console.error("Erreur de récupération des tâches: Erreur inconnue.");
-        }
+        state.error = action.payload;
+        console.error("Error fetching tasks:", state.error);
       })
 
       // Ajout d'une nouvelle tâche
@@ -177,6 +184,7 @@ const tasksSlice = createSlice({
         state.status = "succeeded";
         state.items = state.items.filter((task) => task.id !== action.payload); // Retirer la tâche supprimée
         console.log("Tâche supprimée, ID:", action.payload);
+        state.error = null;
       })
       .addCase(deleteTask.rejected, (state, action) => {
         state.status = "failed";
