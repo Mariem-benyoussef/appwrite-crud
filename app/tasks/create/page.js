@@ -96,7 +96,6 @@ export default function CreatePage() {
           type="submit"
           disabled={isLoading}
         >
-          {/* {isLoading ? "Ajouter..." : "Modifier tâche"} */}
           {"Ajouter tâche"}
         </button>
       </form>

@@ -54,7 +54,6 @@ const LoginPage = () => {
       );
 
       const data = unwrapResult(resultAction);
-      // console.log("Login successfulllllllll:", data);
 
       router.push("/");
     } catch (error) {

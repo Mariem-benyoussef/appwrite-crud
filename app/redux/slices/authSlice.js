@@ -1,7 +1,14 @@
-// redux/slices/authSlice.js
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+// Helper function to safely access localStorage
+const getLocalStorageItem = (key) => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem(key);
+  }
+  return null;
+};
+
+// Async login action
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
@@ -14,13 +21,18 @@ export const login = createAsyncThunk(
         body: JSON.stringify({ email, password }),
       });
 
-      // Parse the JSON response
-      const data = await response.json();
+      // Ensure the response is successful
+      if (!response.ok) {
+        throw new Error("Login failed! Please check your credentials.");
+      }
 
+      const data = await response.json();
       return { token: data.token, user: data.user };
     } catch (error) {
       console.error("Login request error:", error);
-      return rejectWithValue(error.message);
+      return rejectWithValue(
+        error.message || "An error occurred during login."
+      );
     }
   }
 );
@@ -32,25 +44,50 @@ const authSlice = createSlice({
     token: null,
     isAuthenticated: false,
     error: null,
+    loading: false,
   },
 
   reducers: {
-    login: (state, action) => {
+    setLogin: (state, action) => {
       state.token = action.payload.token;
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
+
+      // Store in localStorage if running in browser
+      if (typeof window !== "undefined") {
+        localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
+      }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
-      localStorage.removeItem("token");
+
+      // Remove from localStorage if running in browser
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      }
     },
-    setUserFromLocalStorage: (state, action) => {
-      const { token, user } = action.payload;
-      state.token = token;
-      state.user = user;
-      state.isAuthenticated = !!token;
-      state.error = null;
+    setUserFromLocalStorage: (state) => {
+      // Retrieve from localStorage only if running in the browser
+      if (typeof window !== "undefined") {
+        const token = getLocalStorageItem("token");
+        const user = getLocalStorageItem("user");
+
+        // Ensure both token and user exist for authentication
+        if (token && user) {
+          state.token = token;
+          state.user = JSON.parse(user);
+          state.isAuthenticated = true;
+        } else {
+          state.isAuthenticated = false;
+        }
+
+        state.error = null;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -65,12 +102,16 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.error = null;
-        localStorage.setItem("token", action.payload.token);
-        // console.log("Token saved to localStorage:", action.payload.token);
+
+        // Store in localStorage if running in browser
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", action.payload.token);
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
@@ -79,6 +120,6 @@ const authSlice = createSlice({
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
 
-export const { logout, setUserFromLocalStorage } = authSlice.actions;
+export const { setLogin, logout, setUserFromLocalStorage } = authSlice.actions;
 
 export default authSlice.reducer;

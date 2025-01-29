@@ -1,48 +1,49 @@
 "use client";
 
+import {
+  fetchTask,
+  fetchTasks,
+  updateTask,
+} from "@/app/redux/slices/taskSlice";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 export default function EditPage() {
   const { id } = useParams();
+  const task = useSelector((state) => state.tasks.selectedTask);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     status: "",
     priority: "",
   });
+
   // const [isLoading, setIsLoading] = useState(false);
   // const [error, setError] = useState(null);
+
   const { isLoading, error } = useSelector((state) => state.tasks);
+
+  const dispatch = useDispatch();
 
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`/api/tasks/${id}`, {
-          method: "GET",
-          credentials: "include",
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch task");
-        }
+    if (id) {
+      dispatch(fetchTask(id));
+    }
+  }, [id, dispatch]);
 
-        const { task } = await response.json();
-        console.log("task", task);
-        setFormData({
-          title: task.title,
-          description: task.description,
-          status: task.status,
-          priority: task.priority,
-        });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    // fetchData();
-  }, [id]);
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+      });
+    }
+  }, [task]);
 
   const handleInputChange = (e) => {
     setFormData((prevData) => ({
@@ -60,35 +61,21 @@ export default function EditPage() {
       !formData.status ||
       !formData.priority
     ) {
-      // setError("Veuillez remplir tous les champs");
       return;
     }
 
-    // setError(null);
-    // setIsLoading(true);
-
     try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify(formData),
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update task");
-      }
-
-      router.push("/");
+      await dispatch(updateTask({ id, updates: formData }))
+        .unwrap() // Allows handling results directly from the action (success or failure)
+        .then(() => {
+          router.push("/"); // Redirect after success
+        })
+        .catch((err) => {
+          console.error("Error updating task:", err);
+        });
     } catch (error) {
-      console.log(error);
-      // setError("Something went wrong. Please try again.");
+      console.error("Error updating task:", error);
     }
-    // finally {
-    //   setIsLoading(false);
-    // }
   };
 
   return (
@@ -137,7 +124,7 @@ export default function EditPage() {
           type="submit"
           disabled={isLoading}
         >
-          {isLoading ? "Ajouter..." : "Modifier tâche"}
+          {"Modifier tâche"}
         </button>
       </form>
       {error && <p className="text-red-500 mt-4">{error}</p>}

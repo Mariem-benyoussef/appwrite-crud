@@ -6,16 +6,40 @@ import Link from "next/link";
 import {
   logout,
   selectIsAuthenticated,
+  setUserFromLocalStorage,
   selectUser,
 } from "../redux/slices/authSlice";
+import { useEffect } from "react";
 
 const Header = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const user = useSelector(selectUser);
+
   const isAuthenticated = useSelector(selectIsAuthenticated);
+  const user = useSelector(selectUser);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedToken = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
+
+      if (storedToken && storedUser) {
+        dispatch(
+          setUserFromLocalStorage({
+            token: storedToken,
+            user: JSON.parse(storedUser),
+          })
+        );
+      }
+    }
+  }, [dispatch]);
+
   const handleLogout = () => {
     dispatch(logout());
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    }
     router.push("/auth/login");
   };
 

@@ -1,33 +1,52 @@
-// // Managing specific tasks by id.
-// // GET (fetch by id), DELETE, PUT.
-
 import { fetchAPI } from "@/lib/fetch";
 import { NextResponse } from "next/server";
 
-export async function fetchTask(id) {
+export async function fetchTask(id, token) {
   return fetchAPI(`/api/tasks/${id}`, {
     method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
 }
 
-async function deleteTask(id) {
+async function deleteTask(id, token) {
   const response = await fetchAPI(`/api/tasks/${id}`, {
     method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
-  if (!response.ok) {
-    throw new Error(`Failed to delete task with ID ${id}`);
-  }
-  return response.json();
+  console.log("responseeeeee", response);
+  return response;
 }
-async function updateTask(id, data) {
+
+async function updateTask(id, data, token) {
   return fetchAPI(`/api/tasks/${id}`, {
     method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(data),
   });
 }
 
+// Gestionnaire DELETE pour supprimer une tâche
 export async function DELETE(req, { params }) {
   try {
+    const authHeader = req.headers.get("Authorization");
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Authorization token not found" },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
     if (!id) {
       return NextResponse.json(
@@ -36,30 +55,49 @@ export async function DELETE(req, { params }) {
       );
     }
 
-    await deleteTask(id);
+    await deleteTask(id, token);
     return NextResponse.json({ message: "Task deleted successfully" });
   } catch (error) {
+    // console.error("Error deleting task:", error);
     return NextResponse.json(
-      {
-        error: "Failed to delete task",
-        details: error.message,
-      },
+      { error: "Failed to delete task", details: error.message },
       { status: 500 }
     );
   }
 }
 
+// Gestionnaire PUT pour mettre à jour une tâche
 export async function PUT(req, { params }) {
   try {
-    const { id } = await params;
-    const task = await req.json();
-    const updatedTask = await updateTask(id, task);
+    const authHeader = req.headers.get("Authorization");
+    const token = authHeader?.split(" ")[1];
 
-    return NextResponse.json({ message: "Task updated", updatedTask });
+    if (!token) {
+      return NextResponse.json(
+        { error: "Authorization token not found" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = params;
+    if (!id) {
+      return NextResponse.json(
+        { error: "Task ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const task = await req.json();
+    const updatedTask = await updateTask(id, task, token);
+
+    return NextResponse.json({
+      message: "Task updated successfully",
+      updatedTask,
+    });
   } catch (error) {
     console.error("Error updating task:", error);
     return NextResponse.json(
-      { error: "Failed to update task" },
+      { error: "Failed to update task", details: error.message },
       { status: 500 }
     );
   }

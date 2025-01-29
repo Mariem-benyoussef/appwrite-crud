@@ -1,7 +1,6 @@
 // // Managing task lists.
 // // POST (create task), GET (fetch all tasks).
 
-import { fetchAPI } from "@/lib/fetch";
 import { NextResponse } from "next/server";
 
 export async function fetchTasks(token) {
@@ -13,10 +12,10 @@ export async function fetchTasks(token) {
         "Content-Type": "application/json",
       },
     });
-
-    if (!response.ok) {
-      throw new Error(`Error fetching tasks: ${response.statusText}`);
-    }
+    //console.log("responseeeeee", response);
+    // if (!response.ok) {
+    //   throw new Error(`Error fetching tasks: ${response.statusText}`);
+    // }
 
     const data = await response.json();
     return data;
@@ -49,10 +48,14 @@ export async function GET(req) {
     );
   }
 }
-async function createTask(data) {
+async function createTask(token, data) {
   try {
-    const response = await fetchAPI("/api/tasks", {
+    const response = await fetch("http://127.0.0.1:8000/api/tasks", {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(data),
     });
     return response;
@@ -64,20 +67,30 @@ async function createTask(data) {
 
 export async function POST(req) {
   try {
+    const authHeader = req.headers.get("Authorization");
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Authorization token not found" },
+        { status: 401 }
+      );
+    }
+
     const { title, description, status, priority } = await req.json();
-    const task = await createTask({
+    const task = await createTask(token, {
       title,
       description,
       status,
       priority,
     });
+
     return NextResponse.json(task);
   } catch (error) {
+    console.error("Error creating task:", error);
+
     return NextResponse.json(
-      {
-        error: "Failed to create task",
-        details: error.message,
-      },
+      { error: "Failed to create task", details: error.message },
       { status: 500 }
     );
   }
