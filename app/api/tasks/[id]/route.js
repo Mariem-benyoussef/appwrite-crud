@@ -19,7 +19,7 @@ async function deleteTask(id, token) {
       "Content-Type": "application/json",
     },
   });
-  console.log("responseeeeee", response);
+  //console.log("responseeeeee", response);
   return response;
 }
 
@@ -32,6 +32,38 @@ async function updateTask(id, data, token) {
     },
     body: JSON.stringify(data),
   });
+}
+
+export async function GET(req, { params }) {
+  try {
+    const authHeader = req.headers.get("Authorization");
+    const token = authHeader?.split(" ")[1];
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Authorization token not found" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json(
+        { error: "Task ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const task = await fetchTask(id, token);
+    //console.log("Fetched task********:", task);
+    return NextResponse.json(task);
+  } catch (error) {
+    console.error("Error fetching task:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch task", details: error.message },
+      { status: 500 }
+    );
+  }
 }
 
 // Gestionnaire DELETE pour supprimer une tâche
@@ -79,7 +111,7 @@ export async function PUT(req, { params }) {
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Task ID is required" },

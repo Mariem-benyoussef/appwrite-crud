@@ -1,17 +1,18 @@
 "use client";
 
-import {
-  fetchTask,
-  fetchTasks,
-  updateTask,
-} from "@/app/redux/slices/taskSlice";
+import { fetchTask, updateTask } from "@/app/redux/slices/taskSlice";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function EditPage() {
   const { id } = useParams();
+  const dispatch = useDispatch();
+  const router = useRouter();
+
   const task = useSelector((state) => state.tasks.selectedTask);
+  const { isLoading, error } = useSelector((state) => state.tasks);
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -19,28 +20,21 @@ export default function EditPage() {
     priority: "",
   });
 
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [error, setError] = useState(null);
-
-  const { isLoading, error } = useSelector((state) => state.tasks);
-
-  const dispatch = useDispatch();
-
-  const router = useRouter();
-
+  // Fetch task when the component mounts
   useEffect(() => {
     if (id) {
       dispatch(fetchTask(id));
     }
   }, [id, dispatch]);
 
+  // Set form data when task is available
   useEffect(() => {
     if (task) {
       setFormData({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        priority: task.priority,
+        title: task.title || "",
+        description: task.description || "",
+        status: task.status || "",
+        priority: task.priority || "",
       });
     }
   }, [task]);
@@ -65,14 +59,8 @@ export default function EditPage() {
     }
 
     try {
-      await dispatch(updateTask({ id, updates: formData }))
-        .unwrap() // Allows handling results directly from the action (success or failure)
-        .then(() => {
-          router.push("/"); // Redirect after success
-        })
-        .catch((err) => {
-          console.error("Error updating task:", err);
-        });
+      await dispatch(updateTask({ id, updates: formData })).unwrap();
+      router.push("/"); // Redirect after success
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -80,7 +68,7 @@ export default function EditPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold my-8">Modifier tâche</h2>
+      <h2 className="text-2xl font-bold my-8 text-center">Modifier tâche</h2>
 
       <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
         <input
@@ -124,7 +112,7 @@ export default function EditPage() {
           type="submit"
           disabled={isLoading}
         >
-          {"Modifier tâche"}
+          Modifier tâche
         </button>
       </form>
       {error && <p className="text-red-500 mt-4">{error}</p>}

@@ -6,7 +6,6 @@ export const fetchTask = createAsyncThunk(
   async (id, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.token;
-
       if (!token) {
         throw new Error("Veuillez vous reconnecter!");
       }
@@ -158,7 +157,7 @@ const tasksSlice = createSlice({
   name: "tasks",
   initialState: {
     items: [],
-    task: null,
+    selectedTask: null,
     status: "idle",
     error: null,
   },
@@ -238,7 +237,7 @@ const tasksSlice = createSlice({
       })
       .addCase(fetchTask.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.task = action.payload;
+        state.selectedTask = action.payload;
       })
       .addCase(fetchTask.rejected, (state, action) => {
         state.status = "failed";

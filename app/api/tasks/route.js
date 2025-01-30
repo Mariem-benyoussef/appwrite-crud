@@ -12,11 +12,6 @@ export async function fetchTasks(token) {
         "Content-Type": "application/json",
       },
     });
-    //console.log("responseeeeee", response);
-    // if (!response.ok) {
-    //   throw new Error(`Error fetching tasks: ${response.statusText}`);
-    // }
-
     const data = await response.json();
     return data;
   } catch (error) {
@@ -36,7 +31,7 @@ export async function GET(req) {
     }
 
     const tasks = await fetchTasks(token); // Pass the token to fetch tasks
-    console.log("Fetched tasks:", tasks);
+    // console.log("Fetched tasks:", tasks);
 
     return NextResponse.json(tasks);
   } catch (error) {

@@ -70,8 +70,12 @@ export default function Task() {
         <div>
           {tasks.map((task, index) => (
             <div key={index} className="p-4 my-2 rounded-md border-b leading-8">
-              <div className="font-bold">{task.title}</div>
-              <div>{task.description}</div>
+              <Link href={`/tasks/details/${task.id}`} className="block">
+                <div className="font-bold cursor-pointer hover:underline">
+                  {task.title}
+                </div>
+                <div className="text-gray-600">{task.description}</div>
+              </Link>
               {isAdmin && (
                 <div className="flex gap-4 mt-4 justify-end">
                   <Link

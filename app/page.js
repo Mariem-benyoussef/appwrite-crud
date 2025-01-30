@@ -23,8 +23,8 @@ export default function App() {
 
   if (!isAuthenticated) {
     return (
-      <div className="text-center">
-        <h2>Vous devez être connecté pour voir les tâches.</h2>
+      <div className="text-center text-red-500">
+        <h2>Veuillez vous reconnecter!</h2>
       </div>
     );
   }
