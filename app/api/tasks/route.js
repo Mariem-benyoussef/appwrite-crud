@@ -3,9 +3,11 @@
 
 import { NextResponse } from "next/server";
 
+const API_URL = "http://127.0.0.1:8000/api/tasks";
+
 export async function fetchTasks(token) {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/tasks", {
+    const response = await fetch(API_URL, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -45,7 +47,7 @@ export async function GET(req) {
 }
 async function createTask(token, data) {
   try {
-    const response = await fetch("http://127.0.0.1:8000/api/tasks", {
+    const response = await fetch(API_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
