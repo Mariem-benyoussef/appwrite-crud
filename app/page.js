@@ -21,13 +21,13 @@ export default function App() {
     }
   }, [dispatch]);
 
-  if (!isAuthenticated) {
-    return (
-      <div className="text-center text-red-500">
-        <h2>Veuillez vous reconnecter!</h2>
-      </div>
-    );
-  }
+  // if (!isAuthenticated) {
+  //   return (
+  //     <div className="text-center text-red-500">
+  //       <h2>Veuillez vous reconnecter!</h2>
+  //     </div>
+  //   );
+  // }
 
   return <Task />; // Only show Task component if the user is authenticated
 }

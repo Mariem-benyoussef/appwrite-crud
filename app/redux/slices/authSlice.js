@@ -43,6 +43,7 @@ const authSlice = createSlice({
   initialState: {
     user: null,
     token: null,
+    role: null,
     isAuthenticated: false,
     error: null,
     loading: false,
@@ -52,17 +53,20 @@ const authSlice = createSlice({
     setLogin: (state, action) => {
       state.token = action.payload.token;
       state.user = action.payload.user;
+      state.role = action.payload.user.role;
       state.isAuthenticated = true;
 
       // Store in localStorage if running in browser
       if (typeof window !== "undefined") {
         localStorage.setItem("token", action.payload.token);
         localStorage.setItem("user", JSON.stringify(action.payload.user));
+        localStorage.setItem("role", action.payload.user.role);
       }
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
+      state.role = null;
       state.isAuthenticated = false;
       state.error = null;
 
@@ -70,6 +74,7 @@ const authSlice = createSlice({
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        localStorage.removeItem("role");
       }
     },
     setUserFromLocalStorage: (state) => {
@@ -77,11 +82,13 @@ const authSlice = createSlice({
       if (typeof window !== "undefined") {
         const token = getLocalStorageItem("token");
         const user = getLocalStorageItem("user");
+        const role = getLocalStorageItem("role");
 
         // Ensure both token and user exist for authentication
         if (token && user) {
           state.token = token;
           state.user = JSON.parse(user);
+          state.role = role;
           state.isAuthenticated = true;
         } else {
           state.isAuthenticated = false;
@@ -102,12 +109,14 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        state.role = action.payload.user.role;
         state.error = null;
 
         // Store in localStorage if running in browser
         if (typeof window !== "undefined") {
           localStorage.setItem("token", action.payload.token);
           localStorage.setItem("user", JSON.stringify(action.payload.user));
+          localStorage.setItem("role", action.payload.user.role);
         }
       })
       .addCase(login.rejected, (state, action) => {
@@ -120,6 +129,7 @@ const authSlice = createSlice({
 // Selectors
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
+export const selectRole = (state) => state.auth.role;
 
 export const { setLogin, logout, setUserFromLocalStorage } = authSlice.actions;
 

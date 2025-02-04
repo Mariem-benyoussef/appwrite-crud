@@ -6,9 +6,9 @@ export const fetchTask = createAsyncThunk(
   async (id, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.token;
-      if (!token) {
-        throw new Error("Veuillez vous reconnecter!");
-      }
+      // if (!token) {
+      //   throw new Error("Veuillez vous reconnecter!");
+      // }
 
       const response = await fetch(`/api/tasks/${id}`, {
         method: "GET",
@@ -37,9 +37,9 @@ export const fetchTasks = createAsyncThunk(
     try {
       const token = getState().auth.token;
 
-      if (!token) {
-        throw new Error("Veuillez vous reconnecter!");
-      }
+      // if (!token) {
+      //   throw new Error("Veuillez vous reconnecter!");
+      // }
       const response = await fetch("/api/tasks", {
         method: "GET",
         headers: {
@@ -61,9 +61,9 @@ export const addTask = createAsyncThunk(
     try {
       const token = getState().auth.token;
 
-      if (!token) {
-        throw new Error("Veuillez vous reconnecter!");
-      }
+      // if (!token) {
+      //   throw new Error("Veuillez vous reconnecter!");
+      // }
       const response = await fetch(`/api/tasks`, {
         method: "POST",
         headers: {
@@ -90,9 +90,9 @@ export const updateTask = createAsyncThunk(
     try {
       const token = getState().auth.token;
 
-      if (!token) {
-        throw new Error("Veuillez vous reconnecter!");
-      }
+      // if (!token) {
+      //   throw new Error("Veuillez vous reconnecter!");
+      // }
       const response = await fetch(`/api/tasks/${id}`, {
         method: "PUT",
         headers: {
@@ -122,9 +122,9 @@ export const deleteTask = createAsyncThunk(
       console.log("Début suppression tâche", id);
       console.log("Token:", token);
 
-      if (!token) {
-        throw new Error("Veuillez vous reconnecter!");
-      }
+      // if (!token) {
+      //   throw new Error("Veuillez vous reconnecter!");
+      // }
 
       const response = await fetch(`/api/tasks/${id}`, {
         method: "DELETE",
