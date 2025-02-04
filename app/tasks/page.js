@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { logout, selectUser } from "../redux/slices/authSlice";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function Task() {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
@@ -52,7 +53,7 @@ export default function Task() {
   };
 
   return (
-    <div>
+    <ProtectedRoute>
       {error && <p className="py-4 text-red-500">{error}</p>}
       {isAdmin && (
         <div className="flex flex-col items-center mt-4">
@@ -123,6 +124,6 @@ export default function Task() {
           </div>
         </div>
       )}
-    </div>
+    </ProtectedRoute>
   );
 }
