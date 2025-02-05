@@ -2,12 +2,12 @@
 import { login } from "@/app/redux/slices/authSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  const { status, error } = useSelector((state) => state.auth);
+  const { status, error, token } = useSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -15,6 +15,12 @@ const LoginPage = () => {
   });
   const router = useRouter();
   const [validationErrors, setValidationErrors] = useState({});
+
+  useEffect(() => {
+    if (token) {
+      router.push("/");
+    }
+  }, [token, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -9,17 +9,19 @@ export default function ProtectedRoute({
   allowedRoles = ["ADMIN", "USER"],
 }) {
   const router = useRouter();
-  const { token, role } = useSelector((state) => state.auth); // Récupère le token et le rôle
+  const { token, role, isAuthenticated } = useSelector((state) => state.auth); // Ajout de la vérification de l'authentification
 
   console.log("token", token);
   console.log("role", role);
+  console.log("isAuthenticated", isAuthenticated);
+
   useEffect(() => {
-    if (!token) {
-      router.push("/auth/login");
+    if (!isAuthenticated) {
+      router.push("/auth/login"); // Si pas authentifié, redirection vers login
     } else if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-      router.push("/unauthorized"); // Redirection si le rôle n'est pas autorisé
+      router.push("/unauthorized"); // Si rôle non autorisé, redirection vers unauthorized
     }
-  }, [token, role, router, allowedRoles]);
+  }, [isAuthenticated, token, role, router, allowedRoles]);
 
   return children;
 }
