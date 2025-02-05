@@ -20,6 +20,7 @@ export const login = createAsyncThunk(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
+        credentials: "include",
       });
 
       // S'assurer que la réponse est réussie.

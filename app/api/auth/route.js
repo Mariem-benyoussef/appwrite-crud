@@ -20,6 +20,7 @@ export async function POST(request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ email, password }),
+      credentials: "include",
     });
 
     if (!response.ok) {
