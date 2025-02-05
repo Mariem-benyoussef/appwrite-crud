@@ -1,5 +1,5 @@
-// // Managing task lists.
-// // POST (create task), GET (fetch all tasks).
+// Gestion des listes de tâches.
+// POST (créer une tâche), GET (récupérer toutes les tâches).
 
 import { NextResponse } from "next/server";
 
@@ -22,17 +22,19 @@ export async function fetchTasks(token) {
   }
 }
 
-// GET handler for fetching tasks
+// Gestionnaire GET pour récupérer les tâches.
 export async function GET(req) {
   try {
-    // Extract token from the request headers
+    // Extraire token des en-têtes de la requête.
+
     const token = req.headers.get("Authorization")?.split(" ")[1];
 
     if (!token) {
       throw new Error("Authorization token not found");
     }
 
-    const tasks = await fetchTasks(token); // Pass the token to fetch tasks
+    const tasks = await fetchTasks(token); // Passer token pour récupérer les tâches.
+
     // console.log("Fetched tasks:", tasks);
 
     return NextResponse.json(tasks);

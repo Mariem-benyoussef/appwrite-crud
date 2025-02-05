@@ -21,14 +21,15 @@ export default function EditPage() {
     priority: "",
   });
 
-  // Fetch task when the component mounts
+  // Récupérer les tâches lorsque le composant est monté.
+
   useEffect(() => {
     if (id) {
       dispatch(fetchTask(id));
     }
   }, [id, dispatch]);
 
-  // Set form data when task is available
+  // Définir les données du formulaire lorsque la tâche est disponible.
   useEffect(() => {
     if (task) {
       setFormData({

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Helper function to safely access localStorage
+// Fonction utilitaire pour accéder en toute sécurité à localStorage.
 const getLocalStorageItem = (key) => {
   if (typeof window !== "undefined") {
     return localStorage.getItem(key);
@@ -8,7 +8,7 @@ const getLocalStorageItem = (key) => {
   return null;
 };
 
-// Async login action
+// Action de connexion asynchrone.
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
@@ -22,7 +22,7 @@ export const login = createAsyncThunk(
         body: JSON.stringify({ email, password }),
       });
 
-      // Ensure the response is successful
+      // S'assurer que la réponse est réussie.
       if (!response.ok) {
         throw new Error("Login failed! Please check your credentials.");
       }
@@ -56,7 +56,7 @@ const authSlice = createSlice({
       state.role = action.payload.user.role;
       state.isAuthenticated = true;
 
-      // Store in localStorage if running in browser
+      // Stocker dans localStorage si exécuté dans un navigateur.
       if (typeof window !== "undefined") {
         localStorage.setItem("token", action.payload.token);
         localStorage.setItem("user", JSON.stringify(action.payload.user));
@@ -70,7 +70,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
 
-      // Remove from localStorage if running in browser
+      // Supprimer de localStorage si exécuté dans un navigateur.
       if (typeof window !== "undefined") {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -78,13 +78,13 @@ const authSlice = createSlice({
       }
     },
     setUserFromLocalStorage: (state) => {
-      // Retrieve from localStorage only if running in the browser
+      // Récupérer depuis localStorage uniquement si exécuté dans un navigateur.
       if (typeof window !== "undefined") {
         const token = getLocalStorageItem("token");
         const user = getLocalStorageItem("user");
         const role = getLocalStorageItem("role");
 
-        // Ensure both token and user exist for authentication
+        // S'assurer que le token et l'utilisateur existent pour l'authentification.
         if (token && user) {
           state.token = token;
           state.user = JSON.parse(user);
@@ -112,7 +112,7 @@ const authSlice = createSlice({
         state.role = action.payload.user.role;
         state.error = null;
 
-        // Store in localStorage if running in browser
+        // Stocker dans localStorage si exécuté dans le navigateur.
         if (typeof window !== "undefined") {
           localStorage.setItem("token", action.payload.token);
           localStorage.setItem("user", JSON.stringify(action.payload.user));
@@ -126,7 +126,7 @@ const authSlice = createSlice({
   },
 });
 
-// Selectors
+// Sélecteurs
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
 export const selectRole = (state) => state.auth.role;

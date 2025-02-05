@@ -14,7 +14,7 @@ export default function TaskDetails() {
   const task = useSelector((state) => state.tasks.selectedTask);
   const { isLoading, error } = useSelector((state) => state.tasks);
 
-  // Fetch task when the component mounts
+  // Récupérer la tâche lorsque le composant est monté.
   useEffect(() => {
     if (id) {
       dispatch(fetchTask(id));
