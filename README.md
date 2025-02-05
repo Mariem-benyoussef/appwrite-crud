@@ -65,8 +65,8 @@ http://localhost:3000
 - **Next.js - Framework React SSR**
 - **Redux - Gestion d'état prévisible pour React**
 - **Tailwind CSS - Framework CSS utilitaire (optionnel)**
+
 ---
-✨ Auteur
-👤 Mariem Ben youssef
-📧 Email : benyoussefmeriem27@gmail.com
-🔗 GitHub : https://github.com/Mariem-benyoussef/
+
+✨ Auteur 👤 Mariem Ben Youssef 📧 Email : benyoussefmeriem27@gmail.com 🔗 GitHub : https://github.com/Mariem-benyoussef/
+
