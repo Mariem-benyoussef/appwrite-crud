@@ -42,8 +42,7 @@ yarn install
 ### 3️⃣ Configurer les variables d’environnement
 - **Crée un fichier .env.local à la racine du projet et ajoute :**
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-NEXT_PUBLIC_APP_NAME=MonProjet
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 ### 4️⃣ Lancer le serveur de développement
 ```bash
@@ -60,6 +59,7 @@ http://localhost:3000
 - **Connecte ton dépôt GitHub à Vercel.**
 - **Ajoute les variables d'environnement dans les paramètres de Vercel.**
 - **Déploie, Vercel redéploiera automatiquement à chaque push sur main.**
+- **Vercel n'est pas optimisé pour des bases de données MySQL traditionnelles, mais fonctionne très bien avec des solutions de bases de données serverless.**
 ---
 ## 🛠 Technologies utilisées
 - **Next.js - Framework React SSR**
@@ -68,4 +68,4 @@ http://localhost:3000
 ✨ Auteur
 👤 Mariem Ben youssef
 📧 Email : benyoussefmeriem27@gmail.com
-🔗 GitHub : (https://github.com/Mariem-benyoussef/)
+🔗 GitHub : https://github.com/Mariem-benyoussef/
