@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addTask } from "@/app/redux/slices/taskSlice";
-import ProtectedRoute from "@/app/components/ProtectedRoute";
+import { ProtectedRouteWithRole } from "@/app/components/ProtectedRouteWithRole";
 
 export default function CreatePage() {
   const dispatch = useDispatch();
@@ -52,7 +52,7 @@ export default function CreatePage() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRouteWithRole allowedRoles={["ADMIN"]}>
       <h2 className="text-2xl font-bold my-8 text-center">Ajouter une tâche</h2>
 
       <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
@@ -101,6 +101,6 @@ export default function CreatePage() {
         </button>
       </form>
       {error && <p className="text-red-500 mt-4">{error}</p>}
-    </ProtectedRoute>
+    </ProtectedRouteWithRole>
   );
 }

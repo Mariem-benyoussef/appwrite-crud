@@ -13,7 +13,7 @@ export async function POST(request) {
       );
     }
 
-    // Send login request to Laravel API
+    // Envoyer une demande de connexion à l'API Laravel
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
       headers: {

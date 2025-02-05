@@ -4,24 +4,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
-export default function ProtectedRoute({
-  children,
-  allowedRoles = ["ADMIN", "USER"],
-}) {
+export function ProtectedRoute({ children }) {
   const router = useRouter();
-  const { token, role, isAuthenticated } = useSelector((state) => state.auth); // Ajout de la vérification de l'authentification
-
-  console.log("token", token);
-  console.log("role", role);
-  console.log("isAuthenticated", isAuthenticated);
+  const { isAuthenticated } = useSelector((state) => state.auth); // Vérification de l'authentification
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/auth/login"); // Si pas authentifié, redirection vers login
-    } else if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
-      router.push("/unauthorized"); // Si rôle non autorisé, redirection vers unauthorized
+      router.push("/auth/login"); // Si non authentifié, redirection vers login
     }
-  }, [isAuthenticated, token, role, router, allowedRoles]);
+  }, [isAuthenticated, router]);
 
-  return children;
+  return isAuthenticated ? children : null; // Rendu des enfants si authentifié
 }

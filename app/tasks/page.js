@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { logout, selectUser } from "../redux/slices/authSlice";
-import ProtectedRoute from "../components/ProtectedRoute";
+import { ProtectedRoute } from "../components/ProtectedRoute";
 
 export default function Task() {
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);

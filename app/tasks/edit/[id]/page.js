@@ -1,5 +1,6 @@
 "use client";
 
+import { ProtectedRouteWithRole } from "@/app/components/ProtectedRouteWithRole";
 import { fetchTask, updateTask } from "@/app/redux/slices/taskSlice";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -60,62 +61,64 @@ export default function EditPage() {
 
     try {
       await dispatch(updateTask({ id, updates: formData })).unwrap();
-      router.push("/"); // Redirect after success
+      router.push("/");
     } catch (error) {
       console.error("Error updating task:", error);
     }
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold my-8 text-center">Modifier tâche</h2>
+    <ProtectedRouteWithRole allowedRoles={["ADMIN"]}>
+      <div>
+        <h2 className="text-2xl font-bold my-8 text-center">Modifier tâche</h2>
 
-      <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
-        <input
-          type="text"
-          name="title"
-          placeholder="Nom"
-          value={formData.title}
-          className="py-1 px-4 border rounded-md"
-          onChange={handleInputChange}
-        />
+        <form onSubmit={handleSubmit} className="flex gap-3 flex-col">
+          <input
+            type="text"
+            name="title"
+            placeholder="Nom"
+            value={formData.title}
+            className="py-1 px-4 border rounded-md"
+            onChange={handleInputChange}
+          />
 
-        <textarea
-          name="description"
-          rows={4}
-          placeholder="Description"
-          value={formData.description}
-          className="py-1 px-4 border rounded-md resize-none"
-          onChange={handleInputChange}
-        ></textarea>
+          <textarea
+            name="description"
+            rows={4}
+            placeholder="Description"
+            value={formData.description}
+            className="py-1 px-4 border rounded-md resize-none"
+            onChange={handleInputChange}
+          ></textarea>
 
-        <input
-          type="text"
-          name="status"
-          placeholder="Statut"
-          value={formData.status}
-          className="py-1 px-4 border rounded-md"
-          onChange={handleInputChange}
-        />
+          <input
+            type="text"
+            name="status"
+            placeholder="Statut"
+            value={formData.status}
+            className="py-1 px-4 border rounded-md"
+            onChange={handleInputChange}
+          />
 
-        <input
-          type="text"
-          name="priority"
-          placeholder="Priorité"
-          value={formData.priority}
-          className="py-1 px-4 border rounded-md"
-          onChange={handleInputChange}
-        />
+          <input
+            type="text"
+            name="priority"
+            placeholder="Priorité"
+            value={formData.priority}
+            className="py-1 px-4 border rounded-md"
+            onChange={handleInputChange}
+          />
 
-        <button
-          className="bg-black text-white mt-5 px-4 py-1 rounded-md cursor-pointer"
-          type="submit"
-          disabled={isLoading}
-        >
-          Modifier tâche
-        </button>
-      </form>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-    </div>
+          <button
+            className="bg-black text-white mt-5 px-4 py-1 rounded-md cursor-pointer"
+            type="submit"
+            disabled={isLoading}
+          >
+            Modifier tâche
+          </button>
+        </form>
+        {error && <p className="text-red-500 mt-4">{error}</p>}
+      </div>
+    </ProtectedRouteWithRole>
   );
 }

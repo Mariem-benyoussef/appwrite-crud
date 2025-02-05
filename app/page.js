@@ -29,5 +29,5 @@ export default function App() {
   //   );
   // }
 
-  return <Task />; // Only show Task component if the user is authenticated
+  return <Task />; // Afficher le composant Tâche uniquement si l'utilisateur est authentifié
 }
