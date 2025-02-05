@@ -63,6 +63,7 @@ http://localhost:3000
 ---
 ## 🛠 Technologies utilisées
 - **Next.js - Framework React SSR**
+- **Redux - Gestion d'état prévisible pour React**
 - **Tailwind CSS - Framework CSS utilitaire (optionnel)**
 ---
 ✨ Auteur
