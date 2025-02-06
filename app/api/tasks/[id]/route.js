@@ -1,11 +1,12 @@
 import { fetchAPI } from "@/lib/fetch";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function fetchTask(id, token) {
   return fetchAPI(`/api/tasks/${id}`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`,
+      // Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });
@@ -15,7 +16,7 @@ async function deleteTask(id, token) {
   const response = await fetchAPI(`/api/tasks/${id}`, {
     method: "DELETE",
     headers: {
-      Authorization: `Bearer ${token}`,
+      // Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });
@@ -27,7 +28,7 @@ async function updateTask(id, data, token) {
   return fetchAPI(`/api/tasks/${id}`, {
     method: "PUT",
     headers: {
-      Authorization: `Bearer ${token}`,
+      // Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
@@ -36,9 +37,8 @@ async function updateTask(id, data, token) {
 
 export async function GET(req, { params }) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    const token = authHeader?.split(" ")[1];
-
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) {
       return NextResponse.json(
         { error: "Authorization token not found" },
@@ -55,7 +55,6 @@ export async function GET(req, { params }) {
     }
 
     const task = await fetchTask(id, token);
-    //console.log("Fetched task********:", task);
     return NextResponse.json(task);
   } catch (error) {
     console.error("Error fetching task:", error);
@@ -69,9 +68,8 @@ export async function GET(req, { params }) {
 // Gestionnaire DELETE pour supprimer une tâche
 export async function DELETE(req, { params }) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    const token = authHeader?.split(" ")[1];
-
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) {
       return NextResponse.json(
         { error: "Authorization token not found" },
@@ -101,9 +99,8 @@ export async function DELETE(req, { params }) {
 // Gestionnaire PUT pour mettre à jour une tâche
 export async function PUT(req, { params }) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    const token = authHeader?.split(" ")[1];
-
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) {
       return NextResponse.json(
         { error: "Authorization token not found" },

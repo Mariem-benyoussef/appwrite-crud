@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
+import Cookies from "js-cookie";
 // Async thunk pour récupérer une tâche par son ID
 export const fetchTask = createAsyncThunk(
   "fetchTask",
   async (id, { rejectWithValue, getState }) => {
     try {
-      const token = getState().auth.token;
+      const token = Cookies.get("token");
+      // const token = getState().auth.token;
       // if (!token) {
       //   throw new Error("Veuillez vous reconnecter!");
       // }
@@ -13,15 +14,17 @@ export const fetchTask = createAsyncThunk(
       const response = await fetch(`/api/tasks/${id}`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          // Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
 
       if (!response.ok) {
         throw new Error(`Error fetching task: ${response.statusText}`);
       }
 
+      // console.log("responseeeeee", response);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -35,15 +38,15 @@ export const fetchTasks = createAsyncThunk(
   "fetchTasks",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const token = getState().auth.token;
-
+      // const token = getState().auth.token;
+      const token = Cookies.get("token");
       // if (!token) {
       //   throw new Error("Veuillez vous reconnecter!");
       // }
       const response = await fetch("/api/tasks", {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          //Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -59,8 +62,8 @@ export const addTask = createAsyncThunk(
   "addTask",
   async (task, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
-
+      // const token = getState().auth.token;
+      const token = Cookies.get("token");
       // if (!token) {
       //   throw new Error("Veuillez vous reconnecter!");
       // }
@@ -68,7 +71,7 @@ export const addTask = createAsyncThunk(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          //Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(task),
       });
@@ -88,8 +91,8 @@ export const updateTask = createAsyncThunk(
   "updateTask",
   async ({ id, updates }, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
-
+      // const token = getState().auth.token;
+      const token = Cookies.get("token");
       // if (!token) {
       //   throw new Error("Veuillez vous reconnecter!");
       // }
@@ -97,7 +100,7 @@ export const updateTask = createAsyncThunk(
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          //Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updates),
       });
@@ -117,8 +120,8 @@ export const deleteTask = createAsyncThunk(
   "deleteTask",
   async (id, { getState, rejectWithValue }) => {
     try {
-      const token = getState().auth.token;
-
+      // const token = getState().auth.token;
+      const token = Cookies.get("token");
       console.log("Début suppression tâche", id);
       console.log("Token:", token);
 
@@ -131,7 +134,7 @@ export const deleteTask = createAsyncThunk(
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          //Authorization: `Bearer ${token}`,
         },
       });
 

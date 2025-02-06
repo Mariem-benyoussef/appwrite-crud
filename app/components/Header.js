@@ -6,10 +6,11 @@ import Link from "next/link";
 import {
   logout,
   selectIsAuthenticated,
-  setUserFromLocalStorage,
+  setUserFromCookies,
   selectUser,
 } from "../redux/slices/authSlice";
 import { useEffect } from "react";
+import Cookies from "js-cookie";
 
 const Header = () => {
   const router = useRouter();
@@ -19,27 +20,24 @@ const Header = () => {
   const user = useSelector(selectUser);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const storedToken = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
-
-      if (storedToken && storedUser) {
-        dispatch(
-          setUserFromLocalStorage({
-            token: storedToken,
-            user: JSON.parse(storedUser),
-          })
-        );
-      }
+    const storedToken = Cookies.get("token");
+    const storedUser = Cookies.get("user");
+    console.log("Stored Token:", storedToken);
+    console.log("Stored User:", storedUser);
+    if (storedToken && storedUser) {
+      dispatch(
+        setUserFromCookies({
+          token: storedToken,
+          user: JSON.parse(storedUser),
+        })
+      );
     }
   }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-    }
+    Cookies.remove("token");
+    Cookies.remove("user");
     router.push("/auth/login");
   };
 

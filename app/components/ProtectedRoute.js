@@ -1,18 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
 export function ProtectedRoute({ children }) {
   const router = useRouter();
-  const { isAuthenticated } = useSelector((state) => state.auth); // Vérification de l'authentification
+  const { isAuthenticated, token } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(true); // To prevent UI flickering
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/auth/login"); // Si non authentifié, redirection vers login
+    if (!isAuthenticated || !token) {
+      router.push("/auth/login");
+    } else {
+      setLoading(false);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, token, router]);
 
-  return isAuthenticated ? children : null; // Rendu des enfants si authentifié
+  if (loading) {
+    return null;
+  }
+
+  return children;
 }

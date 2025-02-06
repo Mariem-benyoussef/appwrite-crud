@@ -1,19 +1,22 @@
 // Gestion des listes de tâches.
 // POST (créer une tâche), GET (récupérer toutes les tâches).
 
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 const API_BASE_URL = process.env.API_BASE_URL;
 const API_URL = `${API_BASE_URL}/api/tasks`;
-export async function fetchTasks(token) {
+export async function fetchTasks() {
   try {
     const response = await fetch(API_URL, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
+      credentials: "include",
     });
+    console.log("responseeeeee", response);
     const data = await response.json();
     return data;
   } catch (error) {
@@ -25,17 +28,16 @@ export async function fetchTasks(token) {
 // Gestionnaire GET pour récupérer les tâches.
 export async function GET(req) {
   try {
-    // Extraire token des en-têtes de la requête.
+    // const cookieStore = await cookies();
+    // const token = cookieStore.get("token")?.value;
+    // console.log("token", token);
+    // if (!token) {
+    //   throw new Error("Authorization token not found");
+    // }
 
-    const token = req.headers.get("Authorization")?.split(" ")[1];
+    const tasks = await fetchTasks();
 
-    if (!token) {
-      throw new Error("Authorization token not found");
-    }
-
-    const tasks = await fetchTasks(token); // Passer token pour récupérer les tâches.
-
-    // console.log("Fetched tasks:", tasks);
+    console.log("Fetched tasks:", tasks);
 
     return NextResponse.json(tasks);
   } catch (error) {
@@ -52,7 +54,7 @@ async function createTask(token, data) {
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
@@ -66,9 +68,8 @@ async function createTask(token, data) {
 
 export async function POST(req) {
   try {
-    const authHeader = req.headers.get("Authorization");
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
     if (!token) {
       return NextResponse.json(
         { error: "Authorization token not found" },

@@ -3,31 +3,19 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import Task from "./tasks/page";
-import {
-  selectIsAuthenticated,
-  setUserFromLocalStorage,
-} from "./redux/slices/authSlice";
+import { setUserFromCookies } from "./redux/slices/authSlice";
+import Cookies from "js-cookie";
 
 export default function App() {
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user"));
+    const token = Cookies.get("token");
+    const user = Cookies.get("user");
 
     if (token && user) {
-      dispatch(setUserFromLocalStorage({ token, user }));
+      dispatch(setUserFromCookies({ token, user }));
     }
   }, [dispatch]);
-
-  // if (!isAuthenticated) {
-  //   return (
-  //     <div className="text-center text-red-500">
-  //       <h2>Veuillez vous reconnecter!</h2>
-  //     </div>
-  //   );
-  // }
 
   return <Task />; // Afficher le composant Tâche uniquement si l'utilisateur est authentifié
 }

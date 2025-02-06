@@ -1,14 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
 
-// Fonction utilitaire pour accéder en toute sécurité à localStorage.
-const getLocalStorageItem = (key) => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem(key);
-  }
-  return null;
-};
+// Utility to safely get cookies in the browser
+const getCookie = (key) => (typeof window !== "undefined" ? Cookies.get(key) : null);
 
-// Action de connexion asynchrone.
+// Async login action
 export const login = createAsyncThunk(
   "auth/login",
   async ({ email, password }, { rejectWithValue }) => {
@@ -23,7 +19,6 @@ export const login = createAsyncThunk(
         credentials: "include",
       });
 
-      // S'assurer que la réponse est réussie.
       if (!response.ok) {
         throw new Error("Login failed! Please check your credentials.");
       }
@@ -32,9 +27,7 @@ export const login = createAsyncThunk(
       return { token: data.token, user: data.user };
     } catch (error) {
       console.error("Login request error:", error);
-      return rejectWithValue(
-        error.message || "An error occurred during login."
-      );
+      return rejectWithValue(error.message || "An error occurred during login.");
     }
   }
 );
@@ -52,18 +45,17 @@ const authSlice = createSlice({
 
   reducers: {
     setLogin: (state, action) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
-      state.role = action.payload.user.role;
+      const { token, user } = action.payload;
+      state.token = token;
+      state.user = user;
+      state.role = user.role;
       state.isAuthenticated = true;
 
-      // Stocker dans localStorage si exécuté dans un navigateur.
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", action.payload.token);
-        localStorage.setItem("user", JSON.stringify(action.payload.user));
-        localStorage.setItem("role", action.payload.user.role);
-      }
+      Cookies.set("token", token);
+      Cookies.set("user", JSON.stringify(user));
+      Cookies.set("role", user.role);
     },
+
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -71,34 +63,29 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
 
-      // Supprimer de localStorage si exécuté dans un navigateur.
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("role");
-      }
+      Cookies.remove("token");
+      Cookies.remove("user");
+      Cookies.remove("role");
     },
-    setUserFromLocalStorage: (state) => {
-      // Récupérer depuis localStorage uniquement si exécuté dans un navigateur.
-      if (typeof window !== "undefined") {
-        const token = getLocalStorageItem("token");
-        const user = getLocalStorageItem("user");
-        const role = getLocalStorageItem("role");
 
-        // S'assurer que le token et l'utilisateur existent pour l'authentification.
-        if (token && user) {
-          state.token = token;
-          state.user = JSON.parse(user);
-          state.role = role;
-          state.isAuthenticated = true;
-        } else {
-          state.isAuthenticated = false;
-        }
+    setUserFromCookies: (state) => {
+      const token = getCookie("token");
+      const user = getCookie("user");
+      const role = getCookie("role");
 
-        state.error = null;
+      if (token && user) {
+        state.token = token;
+        state.user = JSON.parse(user);
+        state.role = role;
+        state.isAuthenticated = true;
+      } else {
+        state.isAuthenticated = false;
       }
+
+      state.error = null;
     },
   },
+
   extraReducers: (builder) => {
     builder
       .addCase(login.pending, (state) => {
@@ -106,19 +93,17 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.fulfilled, (state, action) => {
+        const { token, user } = action.payload;
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.token = action.payload.token;
-        state.role = action.payload.user.role;
+        state.user = user;
+        state.token = token;
+        state.role = user.role;
         state.error = null;
 
-        // Stocker dans localStorage si exécuté dans le navigateur.
-        if (typeof window !== "undefined") {
-          localStorage.setItem("token", action.payload.token);
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-          localStorage.setItem("role", action.payload.user.role);
-        }
+        Cookies.set("token", token);
+        Cookies.set("user", JSON.stringify(user));
+        Cookies.set("role", user.role);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -127,11 +112,12 @@ const authSlice = createSlice({
   },
 });
 
-// Sélecteurs
+// Selectors
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
 export const selectRole = (state) => state.auth.role;
 
-export const { setLogin, logout, setUserFromLocalStorage } = authSlice.actions;
+// Actions
+export const { setLogin, logout, setUserFromCookies } = authSlice.actions;
 
 export default authSlice.reducer;
