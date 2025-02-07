@@ -2,7 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 
 // Utility to safely get cookies in the browser
-const getCookie = (key) => (typeof window !== "undefined" ? Cookies.get(key) : null);
+const getCookie = (key) =>
+  typeof window !== "undefined" ? Cookies.get(key) : null;
 
 // Async login action
 export const login = createAsyncThunk(
@@ -27,7 +28,9 @@ export const login = createAsyncThunk(
       return { token: data.token, user: data.user };
     } catch (error) {
       console.error("Login request error:", error);
-      return rejectWithValue(error.message || "An error occurred during login.");
+      return rejectWithValue(
+        error.message || "An error occurred during login."
+      );
     }
   }
 );
@@ -69,20 +72,19 @@ const authSlice = createSlice({
     },
 
     setUserFromCookies: (state) => {
-      const token = getCookie("token");
-      const user = getCookie("user");
-      const role = getCookie("role");
+      if (typeof window !== "undefined") {
+        // Ensuring this runs only on client
+        const token = Cookies.get("token");
+        const user = Cookies.get("user");
+        const role = Cookies.get("role");
 
-      if (token && user) {
-        state.token = token;
-        state.user = JSON.parse(user);
-        state.role = role;
-        state.isAuthenticated = true;
-      } else {
-        state.isAuthenticated = false;
+        if (token && user) {
+          state.token = token;
+          state.user = JSON.parse(user);
+          state.role = role;
+          state.isAuthenticated = true;
+        }
       }
-
-      state.error = null;
     },
   },
 

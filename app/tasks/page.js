@@ -53,7 +53,8 @@ export default function Task() {
   };
 
   return (
-    <ProtectedRoute>
+    // <ProtectedRoute>
+    <div>
       {error && <p className="py-4 text-red-500">{error}</p>}
       {isAdmin && (
         <div className="flex flex-col items-center mt-4">
@@ -124,6 +125,7 @@ export default function Task() {
           </div>
         </div>
       )}
-    </ProtectedRoute>
+      </div>
+    // </ProtectedRoute>
   );
 }

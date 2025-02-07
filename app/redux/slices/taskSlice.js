@@ -14,11 +14,12 @@ export const fetchTask = createAsyncThunk(
       const response = await fetch(`/api/tasks/${id}`, {
         method: "GET",
         headers: {
-          // Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         credentials: "include",
       });
+
+      // console.log("responseeeeee", response);
 
       if (!response.ok) {
         throw new Error(`Error fetching task: ${response.statusText}`);
@@ -49,6 +50,7 @@ export const fetchTasks = createAsyncThunk(
           //Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
+        credentials: "include",
       });
       return await response.json();
     } catch (error) {
@@ -74,6 +76,7 @@ export const addTask = createAsyncThunk(
           //Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(task),
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error(`Error adding task: ${response.statusText}`);
@@ -103,6 +106,7 @@ export const updateTask = createAsyncThunk(
           //Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updates),
+        credentials: "include",
       });
       if (!response.ok) {
         throw new Error(`Error updating task: ${response.statusText}`);
@@ -136,6 +140,7 @@ export const deleteTask = createAsyncThunk(
           "Content-Type": "application/json",
           //Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
 
       console.log("Réponse API:", response);

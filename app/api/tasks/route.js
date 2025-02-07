@@ -58,6 +58,7 @@ async function createTask(token, data) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
+      credentials: "include",
     });
     return response;
   } catch (error) {

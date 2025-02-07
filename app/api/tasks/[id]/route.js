@@ -9,6 +9,7 @@ export async function fetchTask(id, token) {
       // Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
+    credentials: "include",
   });
 }
 
@@ -19,6 +20,7 @@ async function deleteTask(id, token) {
       // Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
+    credentials: "include",
   });
   //console.log("responseeeeee", response);
   return response;
@@ -32,6 +34,7 @@ async function updateTask(id, data, token) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
+    credentials: "include",
   });
 }
 
